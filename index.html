@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  Pensum · Prüfungsphasen-Tracker
+  ------------------------------------------------------------
+  Erschaffen von: Carolin Bauer
+  Studiengang:    Digital Technology & Consulting
+  ============================================================
+-->
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="author" content="Carolin Bauer · Digital Technology & Consulting">
+<title>Pensum · Prüfungsphase</title>
+<style>
+  :root,[data-theme="dark"]{
+    --bg:#16191c;--bg-soft:#1c2024;--bg-card:#21262b;--bg-elev:#272d33;
+    --border:#2c3338;--border-soft:#363d44;
+    --text:#e6e9ec;--text-dim:#9aa3ab;--text-faint:#646d75;
+    --accent:#7fbdaa;--accent-soft:#3a4a45;--accent-glow:rgba(127,189,170,.18);
+    --gold:#cda86a;--warn:#d8a657;--danger:#d98a78;
+    --lv0:#5a6168;--lv1:#d98a78;--lv2:#d8a657;--lv3:#7fbdaa;
+    --radius:14px;--shadow:0 8px 30px rgba(0,0,0,.35);font-size:16px;
+  }
+  [data-theme="light"]{
+    --bg:#f4f2ec;--bg-soft:#eceae2;--bg-card:#ffffff;--bg-elev:#f7f5ef;
+    --border:#e0ddd2;--border-soft:#d2cfc2;
+    --text:#2a2d31;--text-dim:#6b7178;--text-faint:#9aa0a6;
+    --accent:#3f8f78;--accent-soft:#bfe0d5;--accent-glow:rgba(63,143,120,.14);
+    --gold:#b08a3e;--warn:#c08a2c;--danger:#c5654f;
+    --lv0:#9aa0a6;--lv1:#c5654f;--lv2:#c08a2c;--lv3:#3f8f78;
+    --shadow:0 8px 30px rgba(120,110,90,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(1200px 600px at 80% -10%, var(--accent-glow), transparent 60%),var(--bg);
+    color:var(--text);line-height:1.5;padding:32px 20px 80px;min-height:100vh;transition:background .3s,color .3s;
+  }
+  .wrap{max-width:1120px;margin:0 auto}
+
+  /* Header */
+  header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:8px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:13px}
+  .logo{width:46px;height:46px;border-radius:13px;flex-shrink:0;
+    background:linear-gradient(150deg,#2a3330,#1d2421);border:1px solid var(--accent-soft);
+    display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px var(--accent-glow)}
+  .logo svg{width:30px;height:30px}
+  .brand h1{font-size:1.55rem;font-weight:700;letter-spacing:.01em;line-height:1.1;font-family:Georgia,"Times New Roman",serif}
+  .brand .tagline{color:var(--gold);font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+  .header-right{display:flex;align-items:center;gap:14px}
+  .header-info{text-align:right}
+  .greeting{color:var(--text);font-size:1rem;font-weight:500}
+  .greeting b{color:var(--accent)}
+  .sem-line{color:var(--text-dim);font-size:.82rem;margin-top:2px}
+  .gear{background:var(--bg-card);border:1px solid var(--border);color:var(--text-dim);width:42px;height:42px;border-radius:12px;cursor:pointer;font-size:1.2rem;transition:all .15s;display:flex;align-items:center;justify-content:center}
+  .gear:hover{color:var(--accent);border-color:var(--accent-soft)}
+
+  /* Tabs */
+  .tabs{display:flex;gap:4px;margin:22px 0 26px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+  .tab{background:none;border:none;color:var(--text-dim);font-family:inherit;font-size:.9rem;font-weight:600;padding:10px 16px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+  .tab:hover{color:var(--text)}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+  .section-title{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin:0 4px 14px}
+  .section-title.mt{margin-top:34px}
+
+  /* Countdown */
+  .countdowns{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .cd-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:transform .2s ease,border-color .2s ease}
+  .cd-card:hover{transform:translateY(-2px);border-color:var(--accent-soft)}
+  .cd-card.next{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow),var(--shadow)}
+  .cd-card .tag{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:600;display:inline-block;margin-bottom:4px}
+  .cd-card .subject{font-size:1.05rem;font-weight:600;margin-bottom:2px}
+  .cd-card .date{color:var(--text-dim);font-size:.8rem;margin-bottom:14px}
+  .cd-card .days{font-size:2.5rem;font-weight:700;line-height:1;letter-spacing:-.02em}
+  .cd-card .days small{font-size:.82rem;font-weight:500;color:var(--text-dim);margin-left:6px}
+  .cd-card .mini-prog{height:5px;background:var(--bg-soft);border-radius:99px;overflow:hidden;margin-top:14px}
+  .cd-card .mini-prog>div{height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));border-radius:99px;transition:width .4s}
+  .cd-card .mini-label{font-size:.72rem;color:var(--text-faint);margin-top:6px;display:flex;justify-content:space-between}
+  .cd-card.today .days{color:var(--warn)}
+  .cd-card.past{opacity:.5}
+  .cd-card.past .days{color:var(--text-faint);font-size:1.3rem}
+
+  .grid{display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start;margin-top:32px}
+  .side{position:sticky;top:24px;display:flex;flex-direction:column;gap:18px}
+
+  /* Subjects */
+  .subject-block{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
+  .subject-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .subject-head .title-area{display:flex;align-items:center;gap:10px;flex:1;min-width:0}
+  .subject-head h3{font-size:1.12rem;font-weight:600;outline:none;border-radius:4px;padding:1px 4px}
+  .subject-head h3:focus{background:var(--bg-soft)}
+  .subject-head .meta{font-size:.8rem;color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .icon-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:.95rem;padding:4px 7px;border-radius:7px;transition:all .15s}
+  .icon-btn:hover{color:var(--text);background:var(--bg-soft)}
+  .icon-btn.danger:hover{color:var(--danger)}
+  .progress-bar{height:7px;background:var(--bg-soft);border-radius:99px;overflow:hidden;margin:12px 0}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-soft),var(--accent));width:0;border-radius:99px;transition:width .4s ease}
+  .subject-time{font-size:.76rem;color:var(--text-faint);margin-bottom:8px;font-variant-numeric:tabular-nums}
+
+  .module{border:1px solid var(--border);border-radius:11px;margin-top:12px;overflow:hidden;background:var(--bg-soft)}
+  .module-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer;user-select:none}
+  .module-head:hover{background:var(--bg-elev)}
+  .module-head .caret{color:var(--text-faint);font-size:.8rem;transition:transform .2s;flex-shrink:0}
+  .module.open .caret{transform:rotate(90deg)}
+  .module-head .mname{flex:1;font-size:.95rem;font-weight:600;outline:none;border-radius:4px;padding:1px 4px;min-width:0}
+  .module-head .mname:focus{background:var(--bg)}
+  .module-head .mprog{font-size:.74rem;color:var(--text-dim);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .module-head .mbar{width:54px;height:5px;background:var(--bg);border-radius:99px;overflow:hidden;flex-shrink:0}
+  .module-head .mbar>div{height:100%;border-radius:99px;transition:width .4s,background .3s}
+  .module-body{display:none;padding:4px 13px 12px 30px}
+  .module.open .module-body{display:block}
+
+  .topic{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border)}
+  .topic:first-child{border-top:none}
+  .topic .tname{flex:1;font-size:.88rem;outline:none;border-radius:4px;padding:2px 4px;min-width:0}
+  .topic .tname:focus{background:var(--bg-elev)}
+  .levels{display:flex;gap:4px;flex-shrink:0}
+  .lv{width:26px;height:22px;border-radius:6px;border:1px solid var(--border-soft);background:var(--bg);cursor:pointer;font-size:.62rem;color:var(--text-faint);display:flex;align-items:center;justify-content:center;transition:all .12s;font-weight:600}
+  .lv:hover{border-color:var(--text-dim)}
+  .lv.sel[data-lv="0"]{background:var(--lv0);border-color:var(--lv0);color:#fff}
+  .lv.sel[data-lv="1"]{background:var(--lv1);border-color:var(--lv1);color:var(--bg)}
+  .lv.sel[data-lv="2"]{background:var(--lv2);border-color:var(--lv2);color:var(--bg)}
+  .lv.sel[data-lv="3"]{background:var(--lv3);border-color:var(--lv3);color:var(--bg)}
+  .topic .del-t{opacity:0;color:var(--text-faint);background:none;border:none;cursor:pointer;font-size:.9rem;padding:2px 5px;border-radius:5px;transition:all .15s}
+  .topic:hover .del-t{opacity:1}
+  .topic .del-t:hover{color:var(--danger);background:var(--bg-elev)}
+
+  .add-line{display:flex;align-items:center;gap:8px;color:var(--accent);font-size:.82rem;cursor:pointer;background:none;border:1px dashed var(--accent-soft);border-radius:9px;padding:7px 11px;margin-top:10px;width:100%;justify-content:center;transition:all .15s}
+  .add-line:hover{background:var(--accent-glow);border-color:var(--accent)}
+  .add-line.small{margin-top:9px;font-size:.78rem;padding:6px 10px}
+
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .card h4{font-size:.8rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);font-weight:600;margin-bottom:14px}
+  .ring-stat{display:flex;align-items:center;gap:16px}
+  .ring-stat svg{transform:rotate(-90deg);flex-shrink:0}
+  .ring-stat .pct{font-size:1.7rem;font-weight:700;letter-spacing:-.02em}
+  .ring-stat .label{font-size:.82rem;color:var(--text-dim);margin-top:2px}
+  .ring-stat .sublabel{font-size:.76rem;color:var(--text-faint);margin-top:1px}
+
+  .pomo{text-align:center}
+  .pomo .mode{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:14px}
+  .pomo.break .mode{color:var(--warn)}
+  .timer-ring{position:relative;width:190px;height:190px;margin:0 auto}
+  .timer-ring svg{transform:rotate(-90deg)}
+  .ring-bg{fill:none;stroke:var(--bg-soft);stroke-width:8}
+  .ring-fg{fill:none;stroke:var(--accent);stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .3s}
+  .pomo.break .ring-fg{stroke:var(--warn)}
+  .timer-display{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .timer-display .time{font-size:2.5rem;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+  .timer-display .round{font-size:.76rem;color:var(--text-dim);margin-top:2px}
+  .pomo-controls{display:flex;gap:10px;justify-content:center;margin-top:18px}
+  .btn{font-family:inherit;font-size:.86rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg-soft);color:var(--text);padding:9px 18px;border-radius:10px;transition:all .15s}
+  .btn:hover{border-color:var(--accent-soft)}
+  .btn.primary{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.08)}
+  .btn.gold{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+  .btn.ghost{background:none}
+  .btn.sm{padding:6px 12px;font-size:.8rem}
+  .pomo-subject{margin-top:16px;display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap}
+  .pomo-subject label{font-size:.76rem;color:var(--text-dim)}
+  select,input[type=number],input[type=text],input[type=date],input[type=time]{font-family:inherit;background:var(--bg-soft);border:1px solid var(--border-soft);color:var(--text);border-radius:8px;padding:7px 10px;font-size:.85rem;outline:none}
+  select:focus,input:focus{border-color:var(--accent)}
+  .pomo-settings{margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:none}
+  .pomo-settings.open{display:block}
+  .pomo-settings .row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
+  .pomo-settings .row label{font-size:.82rem;color:var(--text-dim)}
+  .pomo-settings .row input{width:74px;text-align:center}
+  .settings-toggle{margin-top:14px;font-size:.78rem;color:var(--accent);background:none;border:none;cursor:pointer}
+  .settings-toggle:hover{text-decoration:underline}
+  .pomo-stats{display:flex;justify-content:space-around;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .pomo-stats div{font-size:.76rem;color:var(--text-dim)}
+  .pomo-stats strong{display:block;font-size:1.3rem;color:var(--text);font-weight:700;font-variant-numeric:tabular-nums}
+
+  .motivation{background:linear-gradient(160deg,var(--bg-card),var(--bg-soft))}
+  .motivation .quote{font-size:.98rem;font-style:italic;line-height:1.5;font-family:Georgia,serif}
+  .motivation .trans{font-size:.85rem;color:var(--text-dim);margin-top:8px;line-height:1.45}
+  .motivation .author{font-size:.78rem;color:var(--text-faint);margin-top:10px}
+  .motivation .refresh{margin-top:14px;font-size:.78rem;color:var(--accent);background:none;border:none;cursor:pointer;padding:4px 0}
+  .motivation .refresh:hover{text-decoration:underline}
+
+  .cheat-group{margin-bottom:16px}
+  .cheat-group h5{font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+  .cheat-group h5 .dot{width:8px;height:8px;border-radius:99px;background:var(--accent)}
+  .cheat-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg-soft);border:1px solid var(--border);border-radius:9px;margin-bottom:6px}
+  .cheat-item .badge{font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:99px;flex-shrink:0;text-transform:uppercase;letter-spacing:.04em}
+  .badge.l0{background:var(--lv0);color:#fff}.badge.l1{background:var(--lv1);color:var(--bg)}.badge.l2{background:var(--lv2);color:var(--bg)}
+  .cheat-item .ci-name{flex:1;font-size:.88rem}
+  .cheat-item .ci-mod{font-size:.74rem;color:var(--text-faint)}
+
+  /* Calendar */
+  .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+  .cal-head h3{font-size:1.2rem;font-weight:600;font-family:Georgia,serif}
+  .cal-nav{display:flex;gap:8px}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cal-dow{text-align:center;font-size:.72rem;color:var(--text-faint);font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding-bottom:6px}
+  .cal-cell{aspect-ratio:1;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:7px;position:relative;display:flex;flex-direction:column;min-height:60px}
+  .cal-cell.out{opacity:.32}
+  .cal-cell.in-sem{background:var(--bg-elev)}
+  .cal-cell.in-exam{box-shadow:inset 0 0 0 1px var(--accent-soft)}
+  .cal-cell.today{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-glow)}
+  .cal-cell .dn{font-size:.78rem;color:var(--text-dim);font-variant-numeric:tabular-nums}
+  .cal-cell.today .dn{color:var(--accent);font-weight:700}
+  .cal-cell:not(.out){cursor:pointer;transition:transform .1s,border-color .1s}
+  .cal-cell:not(.out):hover{border-color:var(--accent-soft)}
+  .cal-cell.sel{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+  .cal-exam{margin-top:auto;font-size:.64rem;background:var(--accent);color:var(--bg);border-radius:5px;padding:1px 4px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .plan-dots{display:flex;gap:3px;flex-wrap:wrap;margin-top:3px}
+  .plan-dots .pd{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .plan-dots .pd.done{opacity:.35}
+  .plan-dots .more{font-size:.6rem;color:var(--text-faint);line-height:1}
+  .cal-legend{display:flex;gap:18px;flex-wrap:wrap;margin-top:18px;font-size:.78rem;color:var(--text-dim)}
+  .cal-legend span{display:flex;align-items:center;gap:7px}
+  .lg-box{width:14px;height:14px;border-radius:4px;display:inline-block}
+
+  /* Tagesplanung */
+  .day-panel{margin-top:22px}
+  .dp-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+  .dp-head h4{margin:0;font-size:1.05rem}
+  .dp-hint{font-size:.82rem;color:var(--text-faint)}
+  .dp-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+  .dp-empty{font-size:.85rem;color:var(--text-faint);padding:6px 2px}
+  .plan-item{display:flex;align-items:center;gap:10px;background:var(--bg-soft);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:9px;padding:9px 12px}
+  .plan-item .pi-check{width:20px;height:20px;flex-shrink:0;border:2px solid var(--text-faint);border-radius:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--bg);background:transparent;transition:.12s}
+  .plan-item.done .pi-check{background:var(--accent);border-color:var(--accent)}
+  .plan-item .pi-body{flex:1;min-width:0}
+  .plan-item .pi-main{font-size:.9rem;font-weight:600}
+  .plan-item.done .pi-main{text-decoration:line-through;color:var(--text-faint)}
+  .plan-item .pi-sub{font-size:.76rem;color:var(--text-dim)}
+  .plan-item .pi-tag{font-size:.68rem;font-weight:700;color:var(--bg);border-radius:99px;padding:2px 9px;white-space:nowrap}
+  .plan-item .pi-del{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:.95rem;flex-shrink:0;padding:2px 4px}
+  .plan-item .pi-del:hover{color:var(--danger)}
+  .dp-add{display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-top:1px dashed var(--border);padding-top:14px}
+  .dp-add select,.dp-add input{font-size:.85rem;padding:8px 10px;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;color:var(--text)}
+  .dp-add #dpSubject{min-width:150px}
+  .dp-add #dpTopic{flex:1;min-width:180px}
+  .dp-add #dpNote{flex:1;min-width:150px}
+
+  /* Archive / stats */
+  .archive-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  .archive-card .ah{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+  .archive-card .ah h3{font-size:1.05rem;font-weight:600}
+  .archive-card .ah .when{font-size:.78rem;color:var(--text-faint)}
+  .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px}
+  .arch-sub{background:var(--bg-soft);border:1px solid var(--border);border-radius:10px;padding:11px 13px}
+  .arch-sub .n{font-size:.9rem;font-weight:600;margin-bottom:3px}
+  .arch-sub .s{font-size:.78rem;color:var(--text-dim)}
+  .stars{color:var(--warn);letter-spacing:2px}
+  .stat-row{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+  .stat-box{flex:1;min-width:130px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+  .stat-box .v{font-size:1.7rem;font-weight:700;letter-spacing:-.02em}
+  .stat-box .k{font-size:.78rem;color:var(--text-dim);margin-top:2px}
+  .wrapped-btn-row{display:flex;gap:10px;align-items:center;margin-top:10px}
+
+  /* Modal */
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:50;padding:20px}
+  .modal-bg.open{display:flex}
+  .modal{background:var(--bg-card);border:1px solid var(--border-soft);border-radius:18px;padding:26px;max-width:520px;width:100%;box-shadow:var(--shadow);max-height:88vh;overflow:auto}
+  .modal h2{font-size:1.2rem;margin-bottom:6px}
+  .modal p.desc{color:var(--text-dim);font-size:.88rem;margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.8rem;color:var(--text-dim);margin-bottom:6px;font-weight:500}
+  .field input,.field select{width:100%}
+  .field-row{display:flex;gap:12px}.field-row .field{flex:1}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
+  .rate-block{margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+  .rate-block:last-of-type{border-bottom:none}
+  .rate-block .rn{font-size:.95rem;font-weight:600;margin-bottom:8px}
+  .star-pick{display:flex;gap:6px;font-size:1.5rem;color:var(--text-faint)}
+  .star-pick span{cursor:pointer;transition:color .12s}
+  .star-pick span.on{color:var(--warn)}
+  .rate-note{width:100%;margin-top:8px;background:var(--bg-soft);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:8px 10px;font-family:inherit;font-size:.85rem;resize:vertical;min-height:46px}
+
+  /* Settings course rows */
+  .course-row{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px dashed var(--border)}
+  .course-row:last-child{border-bottom:none}
+  .course-row .c-main{display:flex;gap:8px;align-items:center}
+  .course-row input[type=text].c-name{flex:1}
+  .course-row input[type=date]{width:140px}
+  .course-row input[type=time]{width:96px}
+  .course-row .del-c{flex-shrink:0}
+  .course-row .c-weight{display:flex;gap:8px;align-items:center;padding-left:2px}
+  .course-row .c-weight select,.course-row .c-weight input{font-size:.82rem;padding:5px 8px}
+  .course-row .c-weight .c-credits{width:80px}
+
+  .banner{background:linear-gradient(120deg,var(--accent-soft),var(--bg-card));border:1px solid var(--accent);border-radius:var(--radius);padding:16px 20px;margin-bottom:22px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .banner .bt{font-size:.92rem}.banner .bt strong{color:var(--accent)}
+
+  footer{text-align:center;color:var(--text-faint);font-size:.78rem;margin-top:46px}
+  .link-btn{color:var(--text-faint);background:none;border:none;cursor:pointer;text-decoration:underline;font-size:.78rem}
+  .link-btn:hover{color:var(--danger)}
+  .hidden{display:none!important}
+  .empty-hint{color:var(--text-faint);font-size:.9rem;font-style:italic;padding:20px;text-align:center;border:1px dashed var(--border);border-radius:var(--radius)}
+
+  /* WRAPPED 9:16 */
+  #wrappedModal .modal{background:none;border:none;box-shadow:none;padding:0;max-width:none;width:auto;overflow:visible}
+  .wrapped-stage{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .story{width:340px;height:604px;border-radius:26px;overflow:hidden;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .slide{position:absolute;inset:0;display:none;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:40px 30px;color:#fff}
+  .slide.active{display:flex}
+  .slide .kicker{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;opacity:.8;margin-bottom:14px;font-weight:600}
+  .slide .big{font-size:4rem;font-weight:800;line-height:1;letter-spacing:-.02em;margin:6px 0}
+  .slide .big.sm{font-size:2.6rem}
+  .slide .cap{font-size:1.05rem;margin-top:14px;line-height:1.4;font-weight:500}
+  .slide .sub{font-size:.9rem;opacity:.85;margin-top:18px;line-height:1.5}
+  .slide .list{margin-top:18px;width:100%}
+  .slide .list .li{display:flex;justify-content:space-between;font-size:.92rem;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.18)}
+  .slide .wm{position:absolute;bottom:22px;left:0;right:0;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;opacity:.7;font-weight:600}
+  .slide .laurel{width:46px;height:46px;opacity:.9;margin-bottom:10px}
+  .s1{background:linear-gradient(160deg,#1f3b34,#0e1a17)}
+  .s2{background:linear-gradient(160deg,#3a3326,#17130c)}
+  .s3{background:linear-gradient(160deg,#2a3a3f,#0f1719)}
+  .s4{background:linear-gradient(160deg,#3a2630,#170d12)}
+  .s5{background:linear-gradient(160deg,#26303a,#0d1117)}
+  .story-dots{position:absolute;top:14px;left:14px;right:14px;display:flex;gap:5px;z-index:3}
+  .story-dots .d{flex:1;height:3px;background:rgba(255,255,255,.3);border-radius:2px}
+  .story-dots .d.on{background:#fff}
+  .story-tap{position:absolute;inset:0;display:flex;z-index:2}
+  .story-tap .l,.story-tap .r{flex:1;cursor:pointer}
+  .wrapped-controls{display:flex;gap:10px}
+
+  /* Streak badge + day goal in header */
+  .streak{display:flex;align-items:center;gap:6px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:7px 12px;font-size:.86rem;font-weight:600;color:var(--text);white-space:nowrap}
+  .streak .flame{font-size:1rem;filter:saturate(1.2)}
+  .streak.cold{color:var(--text-faint)}
+  /* day goal bar */
+  .daygoal{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+  .daygoal .dg-ring{flex-shrink:0}
+  .daygoal .dg-ring svg{transform:rotate(-90deg)}
+  .daygoal .dg-info{flex:1}
+  .daygoal .dg-info .t{font-size:.92rem;font-weight:600}
+  .daygoal .dg-info .s{font-size:.8rem;color:var(--text-dim);margin-top:2px}
+  .daygoal .dg-edit{font-size:.76rem;color:var(--accent);background:none;border:none;cursor:pointer}
+  .daygoal .dg-edit:hover{text-decoration:underline}
+  /* next task banner */
+  .nextbanner{background:linear-gradient(120deg,var(--accent-soft),var(--bg-card));border:1px solid var(--accent-soft);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .nextbanner .nb-txt .k{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  .nextbanner .nb-txt .m{font-size:1rem;font-weight:600;margin-top:3px}
+  .nextbanner .nb-txt .sub{font-size:.8rem;color:var(--text-dim);margin-top:2px}
+  /* review (spaced repetition) banner */
+  .reviewbanner{background:linear-gradient(120deg,#3a3326,var(--bg-card));border:1px solid var(--warn);border-radius:var(--radius);padding:14px 18px;margin-bottom:18px}
+  [data-theme="light"] .reviewbanner{background:linear-gradient(120deg,#f3e9d2,var(--bg-card))}
+  .reviewbanner .rb-head{font-size:.82rem;font-weight:600;color:var(--warn);margin-bottom:8px;display:flex;align-items:center;gap:7px}
+  .reviewbanner .rb-item{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:.86rem;padding:6px 0;border-top:1px solid var(--border)}
+  .reviewbanner .rb-item:first-of-type{border-top:none}
+  .reviewbanner .rb-item .rb-mark{background:var(--warn);color:var(--bg);border:none;border-radius:7px;padding:4px 10px;font-size:.76rem;font-weight:600;cursor:pointer}
+  .reviewbanner .rb-item .rb-mark:hover{filter:brightness(1.08)}
+  .topic.due-review{box-shadow:inset 3px 0 0 var(--warn)}
+  .topic .rev-flag{font-size:.66rem;color:var(--warn);font-weight:700;flex-shrink:0;margin-right:2px}
+  /* weight chip */
+  .weight-chip{font-size:.68rem;color:var(--text-faint);background:var(--bg-soft);border:1px solid var(--border);border-radius:99px;padding:1px 8px;white-space:nowrap}
+  /* heatmap */
+  .heatmap{display:flex;gap:3px;flex-wrap:wrap;margin-top:6px}
+  .heatcol{display:flex;flex-direction:column;gap:3px}
+  .heatcell{width:13px;height:13px;border-radius:3px;background:var(--bg-elev);border:1px solid var(--border)}
+  .heatcell[data-l="1"]{background:var(--accent-soft)}
+  .heatcell[data-l="2"]{background:var(--accent);opacity:.6}
+  .heatcell[data-l="3"]{background:var(--accent);opacity:.8}
+  .heatcell[data-l="4"]{background:var(--accent)}
+  .heat-legend{display:flex;align-items:center;gap:6px;font-size:.74rem;color:var(--text-faint);margin-top:10px;justify-content:flex-end}
+  /* Prüfungstyp-Badge */
+  .type-badge{font-size:.66rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-soft);white-space:nowrap;letter-spacing:.04em}
+  /* Note im Countdown-Card */
+  .grade-row{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
+  .grade-row label{font-size:.76rem;color:var(--text-dim);white-space:nowrap}
+  .grade-row input{width:72px;font-size:.88rem;padding:5px 8px;text-align:center}
+  .grade-row .grade-saved{font-size:.76rem;color:var(--accent);margin-left:4px}
+  .grade-display{font-size:1.4rem;font-weight:700;color:var(--gold);letter-spacing:-.01em}
+  .heat-months{display:flex;gap:3px;font-size:.66rem;color:var(--text-faint);margin-bottom:4px}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}.side{position:static}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo" id="logoBox"></div>
+      <div>
+        <div class="tagline">Pensum</div>
+        <h1>Prüfungsphase</h1>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-info">
+        <div class="greeting"><span id="greetText">Salve</span>, <b id="userName">—</b></div>
+        <div class="sem-line" id="semLine">—</div>
+      </div>
+      <div class="streak cold" id="streakBadge" title="Lern-Streak"><span class="flame">🔥</span><span id="streakNum">0</span></div>
+      <button class="gear" id="themeToggle" title="Hell/Dunkel umschalten">☾</button>
+      <button class="gear" id="openSettings" title="Einstellungen">⚙</button>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="dashboard">Übersicht</button>
+    <button class="tab" data-tab="calendar">Kalender</button>
+    <button class="tab" data-tab="cheat">Lernzettel-Prioritäten</button>
+    <button class="tab" data-tab="archive">Archiv & Statistik</button>
+  </nav>
+
+  <!-- DASHBOARD -->
+  <div id="tab-dashboard">
+    <div id="archiveBanner" class="banner hidden">
+      <div class="bt"></div>
+      <button class="btn primary sm" id="bannerAction">Jetzt bewerten & archivieren</button>
+    </div>
+
+    <div id="reviewBanner" class="reviewbanner hidden"></div>
+
+    <div id="nextBanner" class="nextbanner hidden">
+      <div class="nb-txt">
+        <div class="k">Nächste Aufgabe</div>
+        <div class="m" id="nbMain">—</div>
+        <div class="sub" id="nbSub">—</div>
+      </div>
+      <button class="btn primary sm" id="nbStart">Jetzt lernen</button>
+    </div>
+
+    <div class="daygoal" id="dayGoal">
+      <div class="dg-ring">
+        <svg width="48" height="48">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="var(--bg-soft)" stroke-width="5"/>
+          <circle id="dgRing" cx="24" cy="24" r="20" fill="none" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" stroke-dasharray="125.6" stroke-dashoffset="125.6" style="transition:stroke-dashoffset .5s"/>
+        </svg>
+      </div>
+      <div class="dg-info">
+        <div class="t" id="dgText">Tagesziel</div>
+        <div class="s" id="dgSub">—</div>
+      </div>
+      <button class="dg-edit" id="dgEdit">Ziel ändern</button>
+    </div>
+
+    <div class="section-title">Klausuren-Countdown</div>
+    <div class="countdowns" id="countdowns"></div>
+
+    <div class="grid">
+      <div>
+        <div class="section-title">Prüfungsfächer · Module & Unterthemen</div>
+        <div id="subjects"></div>
+      </div>
+      <aside class="side">
+        <div class="card">
+          <h4>Gesamtfortschritt</h4>
+          <div class="ring-stat">
+            <svg width="72" height="72">
+              <circle cx="36" cy="36" r="30" fill="none" stroke="var(--bg-soft)" stroke-width="6"/>
+              <circle id="overallRing" cx="36" cy="36" r="30" fill="none" stroke="var(--accent)" stroke-width="6" stroke-linecap="round" stroke-dasharray="188.5" stroke-dashoffset="188.5" style="transition:stroke-dashoffset .5s ease"/>
+            </svg>
+            <div>
+              <div class="pct" id="overallPct">0%</div>
+              <div class="label" id="overallLabel">0 von 0 Themen</div>
+              <div class="sublabel" id="overallTime">0 Min gelernt</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card pomo" id="pomo">
+          <div class="mode" id="pomoMode">Fokus</div>
+          <div class="timer-ring">
+            <svg width="190" height="190">
+              <circle class="ring-bg" cx="95" cy="95" r="85"/>
+              <circle class="ring-fg" id="pomoRing" cx="95" cy="95" r="85" stroke-dasharray="534.07" stroke-dashoffset="0"/>
+            </svg>
+            <div class="timer-display">
+              <div class="time" id="pomoTime">25:00</div>
+              <div class="round" id="pomoRound">Runde 1 / 4</div>
+            </div>
+          </div>
+          <div class="pomo-controls">
+            <button class="btn primary" id="pomoStart">Start</button>
+            <button class="btn ghost" id="pomoReset">Reset</button>
+          </div>
+          <div class="pomo-subject">
+            <label for="pomoSubjectSel">Lernen für:</label>
+            <select id="pomoSubjectSel"></select>
+          </div>
+          <button class="settings-toggle" id="settingsToggle">⚙ Timer einstellen</button>
+          <div class="pomo-settings" id="pomoSettings">
+            <div class="row"><label>Fokus (Min)</label><input type="number" id="setFocus" min="1" max="180" value="25"></div>
+            <div class="row"><label>Kurze Pause (Min)</label><input type="number" id="setShort" min="1" max="60" value="5"></div>
+            <div class="row"><label>Lange Pause (Min)</label><input type="number" id="setLong" min="1" max="60" value="15"></div>
+            <div class="row"><label>Runden bis lange Pause</label><input type="number" id="setRounds" min="1" max="12" value="4"></div>
+            <button class="btn sm" id="applySettings" style="width:100%;margin-top:4px">Übernehmen</button>
+          </div>
+          <div class="pomo-stats">
+            <div><strong id="statSessions">0</strong>Sessions heute</div>
+            <div><strong id="statFocus">0</strong>Min heute</div>
+          </div>
+        </div>
+
+        <div class="card motivation">
+          <div class="quote" id="quoteText"></div>
+          <div class="trans" id="quoteTrans"></div>
+          <div class="author" id="quoteAuthor"></div>
+          <button class="refresh" id="quoteRefresh">↻ Neue Motivation</button>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="tab-calendar" class="hidden">
+    <div class="cal-head">
+      <h3 id="calTitle">—</h3>
+      <div class="cal-nav">
+        <button class="btn sm" id="calPrev">‹</button>
+        <button class="btn sm" id="calToday">Heute</button>
+        <button class="btn sm" id="calNext">›</button>
+      </div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span><i class="lg-box" style="background:var(--bg-elev);border:1px solid var(--border)"></i> Semesterzeitraum</span>
+      <span><i class="lg-box" style="background:var(--bg-card);box-shadow:inset 0 0 0 1px var(--accent-soft)"></i> Prüfungszeitraum</span>
+      <span><i class="lg-box" style="background:var(--accent)"></i> Klausur</span>
+      <span><i class="lg-box" style="border:1px solid var(--accent)"></i> Heute</span>
+      <span><i class="lg-box" style="background:var(--accent);border-radius:50%;width:8px;height:8px"></i> geplante Themen</span>
+    </div>
+
+    <!-- TAGESPLANUNG -->
+    <div class="day-panel card" id="dayPanel">
+      <div class="dp-head">
+        <h4 id="dpDate">Tag im Kalender wählen</h4>
+        <span class="dp-hint" id="dpHint">Klicke oben auf einen Tag, um zu planen, was du lernst.</span>
+      </div>
+      <div id="dpList" class="dp-list"></div>
+      <div class="dp-add hidden" id="dpAdd">
+        <select id="dpSubject" title="Fach"></select>
+        <select id="dpTopic" title="Unterthema (optional)"><option value="">— ganzes Fach / kein bestimmtes Thema —</option></select>
+        <input type="text" id="dpNote" placeholder="Notiz (optional)">
+        <button class="btn primary sm" id="dpAddBtn">+ Hinzufügen</button>
+      </div>
+    </div>
+
+    <div class="section-title mt">Lern-Heatmap · letzte 16 Wochen</div>
+    <div class="card">
+      <div class="heat-months" id="heatMonths"></div>
+      <div class="heatmap" id="heatmap"></div>
+      <div class="heat-legend">weniger
+        <i class="heatcell"></i><i class="heatcell" data-l="1"></i><i class="heatcell" data-l="2"></i><i class="heatcell" data-l="3"></i><i class="heatcell" data-l="4"></i>
+        mehr
+      </div>
+    </div>
+  </div>
+
+  <!-- CHEAT -->
+  <div id="tab-cheat" class="hidden">
+    <div class="section-title">Auf den Lernzettel / Cheat Sheet</div>
+    <p style="color:var(--text-dim);font-size:.9rem;margin:0 4px 20px">Alle Unterthemen, die noch nicht „Sitzt“ sind – nach Dringlichkeit sortiert.</p>
+    <div id="cheatList"></div>
+  </div>
+
+  <!-- ARCHIVE -->
+  <div id="tab-archive" class="hidden">
+    <div class="section-title">Statistik über alle Semester</div>
+    <div class="stat-row" id="statRow"></div>
+    <div class="section-title mt">Archivierte Prüfungsphasen</div>
+    <div id="archiveList"></div>
+  </div>
+
+  <footer>
+    Alles wird automatisch in deinem Browser gespeichert ·
+    <button class="link-btn" id="exportBtn" style="color:var(--text-faint)">Daten exportieren</button> ·
+    <button class="link-btn" id="importBtn" style="color:var(--text-faint)">Daten importieren</button> ·
+    <button class="link-btn" id="resetAll">Aktuelle Phase zurücksetzen</button>
+    <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+    <div style="margin-top:10px;opacity:.7">Pensum · erstellt von Carolin Bauer · Digital Technology &amp; Consulting</div>
+  </footer>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-bg" id="settingsModal">
+  <div class="modal">
+    <h2>Einstellungen</h2>
+    <p class="desc">Name, Semester und Kurse verwalten.</p>
+    <div class="field"><label>Dein Name</label><input type="text" id="setName" placeholder="z.B. Carolin"></div>
+    <div class="field"><label>Semester-Bezeichnung</label><input type="text" id="setSemester" placeholder="z.B. Sommersemester 2026"></div>
+    <div class="field-row">
+      <div class="field"><label>Semesterbeginn</label><input type="date" id="setSemStart"></div>
+      <div class="field"><label>Semesterende (optional)</label><input type="date" id="setSemEnd"></div>
+    </div>
+    <div class="field">
+      <label>Kurse / Klausurtermine</label>
+      <div id="courseRows"></div>
+      <button class="add-line small" id="addCourseRow" style="margin-top:6px">+ Kurs hinzufügen</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" data-close>Abbrechen</button>
+      <button class="btn primary" id="saveSettings">Speichern</button>
+    </div>
+  </div>
+</div>
+
+<!-- RATE MODAL -->
+<div class="modal-bg" id="rateModal">
+  <div class="modal">
+    <h2>Prüfungsphase bewerten</h2>
+    <p class="desc">Wie lief es in den einzelnen Fächern? Das fließt in deine Langzeit-Statistik & Wrapped ein.</p>
+    <div id="rateBlocks"></div>
+    <div class="modal-actions">
+      <button class="btn ghost" data-close>Später</button>
+      <button class="btn primary" id="rateSave">Archivieren</button>
+    </div>
+  </div>
+</div>
+
+<!-- WRAPPED MODAL -->
+<div class="modal-bg" id="wrappedModal">
+  <div class="modal">
+    <div class="wrapped-stage">
+      <div class="story" id="story"></div>
+      <div class="wrapped-controls">
+        <button class="btn ghost sm" data-close>Schließen</button>
+        <button class="btn gold sm" id="dlWrapped">Als Bild speichern</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ KONSTANTEN ============ */
+const STORE_KEY="pensum_v1";
+const LEVELS=["Noch nicht","Unsicher","Geht so","Sitzt"];
+const LEVELS_SHORT=["—","!","~","✓"];
+const LAUREL='<svg viewBox="0 0 64 64" fill="none"><path d="M32 8c0 8 0 18-6 28" stroke="#cda86a" stroke-width="0"/><g stroke="#cda86a" stroke-width="2.2" stroke-linecap="round"><path d="M22 16c-6 2-9 7-9 13 0 8 6 16 19 23"/><path d="M42 16c6 2 9 7 9 13 0 8-6 16-19 23"/></g><g fill="#cda86a"><path d="M19 20c-3 0-5 2-6 4 2 1 5 1 7-1 1-1 0-3-1-3z"/><path d="M16 28c-3 0-5 2-5 5 3 0 5-1 6-3 1-1 0-2-1-2z"/><path d="M16 37c-2 1-3 3-3 5 3 0 5-2 5-4 0-1-1-2-2-1z"/><path d="M20 44c-2 1-2 4-2 6 3-1 4-3 4-5 0-1-1-2-2-1z"/><path d="M45 20c3 0 5 2 6 4-2 1-5 1-7-1-1-1 0-3 1-3z"/><path d="M48 28c3 0 5 2 5 5-3 0-5-1-6-3-1-1 0-2 1-2z"/><path d="M48 37c2 1 3 3 3 5-3 0-5-2-5-4 0-1 1-2 2-1z"/><path d="M44 44c2 1 2 4 2 6-3-1-4-3-4-5 0-1 1-2 2-1z"/></g><circle cx="32" cy="50" r="2.5" fill="#cda86a"/></svg>';
+
+const QUOTES=[
+  {t:"Per aspera ad astra.",d:"Durch Mühsal gelangt man zu den Sternen.",a:"lat. Sprichwort"},
+  {t:"Dum spiro, spero.",d:"Solange ich atme, hoffe ich.",a:"Cicero zugeschrieben"},
+  {t:"Repetitio est mater studiorum.",d:"Wiederholung ist die Mutter des Lernens.",a:"lat. Sprichwort"},
+  {t:"Non scholae sed vitae discimus.",d:"Nicht für die Schule, sondern für das Leben lernen wir.",a:"nach Seneca"},
+  {t:"Carpe diem.",d:"Nutze den Tag.",a:"Horaz"},
+  {t:"Festina lente.",d:"Eile mit Weile.",a:"Augustus zugeschrieben"},
+  {t:"Qui audet adipiscitur.",d:"Wer wagt, gewinnt.",a:"lat. Sprichwort"},
+  {t:"Labor omnia vincit.",d:"Arbeit besiegt alles.",a:"Vergil"},
+  {t:"Discere semper.",d:"Immer weiterlernen.",a:"lat. Sentenz"},
+  {t:"Nulla dies sine linea.",d:"Kein Tag ohne eine Zeile.",a:"Plinius d. Ä."},
+  {t:"Vincit qui se vincit.",d:"Es siegt, wer sich selbst besiegt.",a:"lat. Sprichwort"},
+  {t:"Sapere aude.",d:"Wage es, weise zu sein.",a:"Horaz / Kant"},
+  {t:"Paulatim summa petuntur.",d:"Schritt für Schritt erreicht man das Höchste.",a:"lat. Sprichwort"},
+  {t:"Fortes fortuna adiuvat.",d:"Den Mutigen hilft das Glück.",a:"Terenz"},
+  {t:"Aut viam inveniam aut faciam.",d:"Entweder finde ich einen Weg, oder ich schaffe einen.",a:"Hannibal zugeschrieben"}
+];
+
+/* ============ STATE ============ */
+function uid(){return Math.random().toString(36).slice(2,9);}
+function freshPhase(){return{semester:"",semStart:"",semEnd:"",exams:[]};}
+function mkExam(subject,date,time){return{id:uid(),subject,date,time:time||"09:00",type:"Klausur",grade:null,seconds:0,weightMode:"none",credits:5,importance:2,modules:[
+  {id:uid(),name:"Modul 1 – umbenennen",open:true,topics:[
+    {id:uid(),name:"Unterthema – umbenennen",level:0,masteredAt:null,nextReview:null},
+    {id:uid(),name:"Unterthema",level:0,masteredAt:null,nextReview:null}
+  ]}
+]};}
+function defaultState(){
+  const p=freshPhase();
+  const y=new Date().getFullYear();
+  p.semester="Sommersemester "+y;
+  p.semStart=y+"-04-01";
+  p.exams=[];
+  return{user:"",current:p,archive:[],pomo:{focus:25,short:5,long:15,rounds:4},stats:{date:null,sessions:0,focusMin:0},sessionLog:{},theme:"light",dayGoalMin:120,plans:{}};
+}
+let state;try{state=JSON.parse(localStorage.getItem(STORE_KEY));}catch(e){state=null;}
+if(!state||!state.current)state=defaultState();
+if(!state.sessionLog)state.sessionLog={};
+if(!state.theme)state.theme="light";
+if(state.dayGoalMin==null)state.dayGoalMin=120;
+if(!state.plans)state.plans={};
+// Migration: neue Felder auf bestehende Klausuren/Themen ergänzen
+state.current.exams.forEach(ex=>{
+  if(ex.weightMode==null)ex.weightMode="none";
+  if(ex.credits==null)ex.credits=5;
+  if(ex.importance==null)ex.importance=2;
+  if(!ex.type)ex.type="Klausur";
+  if(ex.grade===undefined)ex.grade=null;
+  ex.modules.forEach(m=>m.topics.forEach(t=>{if(t.masteredAt===undefined)t.masteredAt=null;if(t.nextReview===undefined)t.nextReview=null;}));
+});
+const todayStr=new Date().toISOString().slice(0,10);
+if(state.stats.date!==todayStr)state.stats={date:todayStr,sessions:0,focusMin:0};
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+
+/* ============ BERECHNUNG ============ */
+function examTopics(ex){return ex.modules.flatMap(m=>m.topics);}
+function moduleProgress(m){if(!m.topics.length)return 0;return m.topics.reduce((a,t)=>a+t.level,0)/(m.topics.length*3);}
+function examProgress(ex){const ts=examTopics(ex);if(!ts.length)return 0;return ts.reduce((a,t)=>a+t.level,0)/(ts.length*3);}
+function examWeight(ex){if(ex.weightMode==="credits")return Math.max(.1,+ex.credits||1);if(ex.weightMode==="importance")return [1,1,2,3.5][Math.max(0,Math.min(3,ex.importance||2))]||2;return 1;}
+/* ---- Stabile Farbe pro Fach (nach Position in der Klausurliste) ---- */
+const SUBJECT_COLORS=["#7fbdaa","#cda86a","#d98a78","#8aa6d9","#bd9cc9","#7cc4b0","#d8a657","#c98b8b"];
+function subjectColor(examId){
+  const i=state.current.exams.findIndex(e=>e.id===examId);
+  return i>=0?SUBJECT_COLORS[i%SUBJECT_COLORS.length]:"#7fbdaa";
+}
+function subjectName(examId){const e=state.current.exams.find(x=>x.id===examId);return e?e.subject:"Unbekanntes Fach";}
+function topicName(examId,topicId){const e=state.current.exams.find(x=>x.id===examId);if(!e)return"";const t=e.modules.flatMap(m=>m.topics).find(t=>t.id===topicId);return t?t.name:"";}
+function overallProgress(){
+  const exams=state.current.exams.filter(e=>examTopics(e).length);
+  if(!exams.length)return{pct:0,done:0,total:0};
+  let wSum=0,wScore=0,done=0,total=0;
+  exams.forEach(ex=>{const ts=examTopics(ex);const score=ts.reduce((a,t)=>a+t.level,0)/(ts.length*3);const w=examWeight(ex);wSum+=w;wScore+=w*score;done+=ts.filter(t=>t.level===3).length;total+=ts.length;});
+  return{pct:Math.round((wSum?wScore/wSum:0)*100),done,total};
+}
+function totalSeconds(){return state.current.exams.reduce((a,e)=>a+(e.seconds||0),0);}
+function fmtMin(sec){const m=Math.round(sec/60);if(m<60)return m+" Min";const h=Math.floor(m/60);return h+" Std "+(m%60)+" Min";}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+/* ---- Spaced Repetition: feste Intervalle (3 Tage → 7 Tage) ---- */
+const REVIEW_STEPS=[3,7]; // Tage nach "Sitzt"
+function dueReviews(){
+  const now=Date.now();const due=[];
+  state.current.exams.forEach(ex=>ex.modules.forEach(m=>m.topics.forEach(t=>{if(t.level===3&&t.nextReview&&t.nextReview<=now)due.push({ex,m,t});})));
+  return due;
+}
+/* ---- Streak: aufeinanderfolgende Tage mit ≥1 Session ---- */
+function calcStreak(){
+  let n=0;const d=new Date();d.setHours(0,0,0,0);
+  // heute zählt nur, wenn schon gelernt; sonst ab gestern weiterzählen
+  if(!(state.sessionLog[fmtDay(d)]>0))d.setDate(d.getDate()-1);
+  while(state.sessionLog[fmtDay(d)]>0){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function fmtDay(d){return d.toISOString().slice(0,10);}
+/* ---- Heutige Lernminuten (aus stats) ---- */
+function todayMinutes(){return state.stats.date===todayStr?state.stats.focusMin:0;}
+
+/* ============ HEADER / LOGO ============ */
+function renderHeader(){
+  const h=new Date().getHours();
+  let g="Salve";if(h<11)g="Bonum mane";else if(h<17)g="Salve";else if(h<22)g="Bonum vesperum";else g="Adhuc vigilans?";
+  document.getElementById("greetText").textContent=g;
+  document.getElementById("userName").textContent=state.user||"Name in ⚙ eintragen";
+  document.getElementById("semLine").textContent=state.current.semester||"Semester in ⚙ setzen";
+  document.getElementById("logoBox").innerHTML=LAUREL;
+}
+
+/* ============ COUNTDOWN ============ */
+function renderCountdowns(){
+  const el=document.getElementById("countdowns");el.innerHTML="";
+  const now=new Date();let nextId=null,nextDiff=Infinity;
+  for(const ex of state.current.exams){const d=new Date(ex.date+"T"+(ex.time||"00:00")+":00")-now;if(d>=0&&d<nextDiff){nextDiff=d;nextId=ex.id;}}
+  if(!state.current.exams.length){el.innerHTML='<div class="empty-hint">Noch keine Klausuren – füge sie in den Einstellungen (⚙) hinzu.</div>';return;}
+  for(const ex of state.current.exams){
+    const target=new Date(ex.date+"T"+(ex.time||"00:00")+":00");
+    const diff=target-now,dayMs=86400000;
+    const days=Math.floor(diff/dayMs),hours=Math.floor((diff%dayMs)/3600000);
+    const card=document.createElement("div");card.className="cd-card";
+    const dateFmt=target.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"long"});
+    let daysHtml;
+    const isPast=diff<0&&days<0;
+    if(isPast){card.classList.add("past");daysHtml="erledigt ✓";}
+    else if(days===0){card.classList.add("today");daysHtml="HEUTE";}
+    else daysHtml=days+'<small>Tag'+(days===1?"":"e")+'</small>';
+    if(ex.id===nextId)card.classList.add("next");
+    const prog=Math.round(examProgress(ex)*100);
+    const typeLabel=esc(ex.type||"Klausur");
+    let gradeHtml="";
+    if(isPast){
+      if(ex.grade!=null&&ex.grade!==""){
+        gradeHtml='<div class="grade-row"><label>Note:</label><span class="grade-display">'+esc(String(ex.grade))+'</span>'
+          +'<button class="btn sm ghost" style="margin-left:auto;font-size:.72rem" data-edit-grade>✎ ändern</button></div>';
+      } else {
+        gradeHtml='<div class="grade-row"><label>Note eintragen:</label>'
+          +'<input type="number" min="1" max="5" step="0.1" placeholder="z.B. 1,7" style="width:90px" data-grade-input>'
+          +'<button class="btn sm primary" data-save-grade>Speichern</button></div>';
+      }
+    }
+    card.innerHTML='<span class="tag">'+typeLabel+'</span>'
+      +(ex.id===nextId?'<span class="tag" style="margin-left:6px;color:var(--gold)">Als Nächstes</span>':'')
+      +'<div class="subject">'+esc(ex.subject)+'</div>'
+      +'<div class="date">'+dateFmt+(ex.time?" · "+ex.time+" Uhr":"")+(days>0?" · noch "+hours+" Std":"")+'</div>'
+      +'<div class="days">'+daysHtml+'</div>'
+      +(isPast?'':('<div class="mini-prog"><div style="width:'+prog+'%"></div></div>'
+      +'<div class="mini-label"><span>'+prog+'% bereit</span><span>'+fmtMin(ex.seconds||0)+'</span></div>'))
+      +gradeHtml;
+    // Grade-Interaktion
+    const saveBtn=card.querySelector("[data-save-grade]");
+    if(saveBtn){
+      saveBtn.addEventListener("click",()=>{
+        const inp=card.querySelector("[data-grade-input]");
+        const val=parseFloat(inp.value.replace(",","."));
+        if(isNaN(val)||val<1||val>5){alert("Bitte eine Note zwischen 1,0 und 5,0 eingeben.");return;}
+        ex.grade=Math.round(val*10)/10;save();renderCountdowns();
+      });
+    }
+    const editBtn=card.querySelector("[data-edit-grade]");
+    if(editBtn){
+      editBtn.addEventListener("click",()=>{ex.grade=null;save();renderCountdowns();});
+    }
+    el.appendChild(card);
+  }
+}
+
+/* ============ SUBJECTS ============ */
+function renderSubjects(){
+  const wrap=document.getElementById("subjects");wrap.innerHTML="";
+  if(!state.current.exams.length){wrap.innerHTML='<div class="empty-hint">Lege zuerst in den Einstellungen (⚙) einen Kurs an.</div>';return;}
+  state.current.exams.forEach(ex=>{
+    const prog=Math.round(examProgress(ex)*100);const ts=examTopics(ex);
+    const block=document.createElement("div");block.className="subject-block";
+    let wChip="";
+    if(ex.weightMode==="credits")wChip='<span class="weight-chip" title="Gewichtung im Gesamtfortschritt">⚖ '+(ex.credits||0)+' ECTS</span>';
+    else if(ex.weightMode==="importance")wChip='<span class="weight-chip" title="Gewichtung im Gesamtfortschritt">⚖ '+["","niedrig","mittel","hoch"][ex.importance||2]+'</span>';
+    const typeBadge='<span class="type-badge">'+esc(ex.type||"Klausur")+'</span>';
+    block.innerHTML='<div class="subject-head"><div class="title-area"><h3 contenteditable="true" spellcheck="false">'+esc(ex.subject)+'</h3>'+typeBadge+'</div>'
+      +wChip
+      +'<span class="meta">'+ts.filter(t=>t.level===3).length+'/'+ts.length+' sitzt · '+prog+'%</span>'
+      +'<button class="icon-btn danger" title="Klausur löschen">🗑</button></div>'
+      +'<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div>'
+      +'<div class="subject-time">⏱ '+fmtMin(ex.seconds||0)+' gelernt</div>'
+      +'<div class="modules"></div><button class="add-line">+ Modul hinzufügen</button>';
+    const h3=block.querySelector("h3");
+    h3.addEventListener("blur",e=>{ex.subject=e.target.textContent.trim()||"Unbenannt";save();renderAll();});
+    h3.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.target.blur();}});
+    block.querySelector(".icon-btn.danger").addEventListener("click",()=>{if(confirm("Klausur „"+ex.subject+"“ löschen?")){state.current.exams=state.current.exams.filter(x=>x.id!==ex.id);save();renderAll();}});
+    const modWrap=block.querySelector(".modules");
+    ex.modules.forEach(m=>modWrap.appendChild(renderModule(ex,m)));
+    block.querySelector(".add-line").addEventListener("click",()=>{ex.modules.push({id:uid(),name:"Neues Modul",open:true,topics:[]});save();renderAll();});
+    wrap.appendChild(block);
+  });
+}
+function renderModule(ex,m){
+  const el=document.createElement("div");el.className="module"+(m.open?" open":"");
+  const prog=Math.round(moduleProgress(m)*100);const done=m.topics.filter(t=>t.level===3).length;
+  el.innerHTML='<div class="module-head"><span class="caret">▶</span>'
+    +'<span class="mname" contenteditable="true" spellcheck="false">'+esc(m.name)+'</span>'
+    +'<div class="mbar"><div style="width:'+prog+'%;background:'+(prog===100?'var(--lv3)':'var(--accent)')+'"></div></div>'
+    +'<span class="mprog">'+done+'/'+m.topics.length+' · '+prog+'%</span>'
+    +'<button class="icon-btn danger del-m" title="Modul löschen">✕</button></div><div class="module-body"></div>';
+  const head=el.querySelector(".module-head");
+  head.addEventListener("click",e=>{if(e.target.closest(".mname")||e.target.closest(".del-m"))return;m.open=!m.open;save();el.classList.toggle("open");});
+  const nameEl=el.querySelector(".mname");
+  nameEl.addEventListener("blur",e=>{m.name=e.target.textContent.trim()||"Unbenannt";save();});
+  nameEl.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.target.blur();}});
+  el.querySelector(".del-m").addEventListener("click",()=>{if(confirm("Modul „"+m.name+"“ löschen?")){ex.modules=ex.modules.filter(x=>x.id!==m.id);save();renderAll();}});
+  const body=el.querySelector(".module-body");
+  m.topics.forEach(t=>body.appendChild(renderTopic(ex,m,t)));
+  const add=document.createElement("button");add.className="add-line small";add.textContent="+ Unterthema";
+  add.addEventListener("click",()=>{m.topics.push({id:uid(),name:"Neues Unterthema",level:0,masteredAt:null,nextReview:null});m.open=true;save();renderAll();});
+  body.appendChild(add);return el;
+}
+function setTopicLevel(t,lv){
+  const wasMastered=t.level===3;
+  t.level=lv;
+  if(lv===3){
+    if(!t.masteredAt||!wasMastered){t.masteredAt=Date.now();t.nextReview=Date.now()+REVIEW_STEPS[0]*86400000;t.reviewStep=0;}
+  }else{t.masteredAt=null;t.nextReview=null;t.reviewStep=0;}
+}
+function confirmReview(t){
+  // Wiederholung erledigt → nächstes Intervall, oder abgeschlossen
+  const step=(t.reviewStep||0)+1;
+  if(step<REVIEW_STEPS.length){t.reviewStep=step;t.nextReview=Date.now()+REVIEW_STEPS[step]*86400000;}
+  else{t.reviewStep=step;t.nextReview=null;} // fertig wiederholt
+}
+function renderTopic(ex,m,t){
+  const row=document.createElement("div");row.className="topic";
+  const due=t.level===3&&t.nextReview&&t.nextReview<=Date.now();
+  if(due)row.classList.add("due-review");
+  let lv="";for(let i=0;i<4;i++)lv+='<button class="lv '+(t.level===i?"sel":"")+'" data-lv="'+i+'" title="'+LEVELS[i]+'">'+LEVELS_SHORT[i]+'</button>';
+  const flag=due?'<button class="rev-flag" title="Wiederholung fällig – klicke nach dem Wiederholen">↻ wiederholen</button>':'';
+  row.innerHTML='<span class="tname" contenteditable="true" spellcheck="false">'+esc(t.name)+'</span>'+flag+'<div class="levels">'+lv+'</div><button class="del-t" title="Löschen">✕</button>';
+  const nameEl=row.querySelector(".tname");
+  nameEl.addEventListener("blur",e=>{t.name=e.target.textContent.trim()||"Unbenannt";save();});
+  nameEl.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.target.blur();}});
+  row.querySelectorAll(".lv").forEach(b=>b.addEventListener("click",()=>{setTopicLevel(t,+b.dataset.lv);save();renderAll();}));
+  const rf=row.querySelector(".rev-flag");if(rf)rf.addEventListener("click",()=>{confirmReview(t);save();renderAll();});
+  row.querySelector(".del-t").addEventListener("click",()=>{m.topics=m.topics.filter(x=>x.id!==t.id);save();renderAll();});
+  return row;
+}
+
+/* ============ OVERALL ============ */
+function renderOverall(){
+  const o=overallProgress();
+  document.getElementById("overallPct").textContent=o.pct+"%";
+  document.getElementById("overallLabel").textContent=o.done+" von "+o.total+" Themen sitzen";
+  document.getElementById("overallTime").textContent=fmtMin(totalSeconds())+" gelernt";
+  document.getElementById("overallRing").style.strokeDashoffset=(2*Math.PI*30)*(1-o.pct/100);
+}
+
+/* ============ STREAK ============ */
+function renderStreak(){
+  const n=calcStreak();
+  document.getElementById("streakNum").textContent=n;
+  const badge=document.getElementById("streakBadge");
+  badge.classList.toggle("cold",n===0);
+  badge.title=n===0?"Noch keine Streak – starte heute eine Fokus-Session!":n+" Tage in Folge gelernt";
+}
+
+/* ============ TAGESZIEL ============ */
+function renderDayGoal(){
+  const goal=state.dayGoalMin||120;const done=todayMinutes();
+  const pct=Math.min(1,goal?done/goal:0);
+  const C=2*Math.PI*20;
+  document.getElementById("dgRing").style.strokeDashoffset=C*(1-pct);
+  document.getElementById("dgText").textContent=done>=goal?"Tagesziel erreicht ✓":"Tagesziel heute";
+  document.getElementById("dgSub").textContent=done+" / "+goal+" Min · "+Math.round(pct*100)+"%";
+}
+
+/* ============ NÄCHSTE AUFGABE ============ */
+function nextTask(){
+  const now=new Date();
+  // nächstes anstehendes Fach (nach Datum), das noch offene Themen hat
+  const upcoming=[...state.current.exams]
+    .filter(e=>examTopics(e).some(t=>t.level<3))
+    .sort((a,b)=>new Date(a.date+"T"+(a.time||"00:00"))-new Date(b.date+"T"+(b.time||"00:00")));
+  let pool=upcoming.filter(e=>new Date(e.date+"T"+(e.time||"00:00"))>=now);
+  if(!pool.length)pool=upcoming;
+  if(!pool.length)return null;
+  const ex=pool[0];
+  // schwächstes Thema dieses Fachs
+  let weak=null;
+  ex.modules.forEach(m=>m.topics.forEach(t=>{if(t.level<3&&(weak===null||t.level<weak.t.level))weak={m,t};}));
+  if(!weak)return null;
+  return{ex,module:weak.m,topic:weak.t};
+}
+function renderNextTask(){
+  const banner=document.getElementById("nextBanner");
+  const nt=nextTask();
+  if(!nt){banner.classList.add("hidden");return;}
+  banner.classList.remove("hidden");
+  document.getElementById("nbMain").textContent=nt.topic.name+"  ·  "+nt.ex.subject;
+  document.getElementById("nbSub").textContent="Modul: "+nt.module.name+" · aktuell „"+LEVELS[nt.topic.level]+"“";
+  const btn=document.getElementById("nbStart");
+  btn.onclick=()=>{
+    const sel=document.getElementById("pomoSubjectSel");
+    if([...sel.options].some(o=>o.value===nt.ex.id))sel.value=nt.ex.id;
+    if(!P.running)togglePomo();
+    document.getElementById("pomo").scrollIntoView({behavior:"smooth",block:"center"});
+  };
+}
+
+/* ============ WIEDERHOLUNGS-BANNER ============ */
+function renderReviewBanner(){
+  const banner=document.getElementById("reviewBanner");
+  const due=dueReviews();
+  if(!due.length){banner.classList.add("hidden");return;}
+  banner.classList.remove("hidden");
+  const names=due.slice(0,3).map(d=>esc(d.t.name)).join(", ");
+  const more=due.length>3?" u.a.":"";
+  banner.innerHTML='<span class="ri">↻</span><div class="rtxt"><strong>'+due.length+' Thema'+(due.length===1?"":"-Wiederholungen")+' fällig.</strong> '+names+more+' – kurz auffrischen, damit es sitzen bleibt.</div>';
+}
+
+/* ============ HEATMAP ============ */
+function renderHeatmap(){
+  const wrap=document.getElementById("heatmap");if(!wrap)return;wrap.innerHTML="";
+  const days=119; // ~17 Wochen
+  const today=new Date();today.setHours(0,0,0,0);
+  // Start am Montag, sodass die Spalten Wochen sind
+  const start=new Date(today);start.setDate(start.getDate()-days+1);
+  start.setDate(start.getDate()-((start.getDay()+6)%7));
+  let max=1;for(const k in state.sessionLog)max=Math.max(max,state.sessionLog[k]);
+  const monthsEl=document.getElementById("heatMonths");if(monthsEl)monthsEl.innerHTML="";
+  const cur=new Date(start);let lastMonth=-1;
+  while(cur<=today){
+    const key=fmtDay(cur);const v=state.sessionLog[key]||0;
+    let lvl=0;if(v>0)lvl=v>=max?4:v>=Math.ceil(max*.66)?3:v>=Math.ceil(max*.33)?2:1;
+    const cell=document.createElement("div");cell.className="heatcell";cell.dataset.l=lvl;
+    cell.title=cur.toLocaleDateString("de-DE",{weekday:"short",day:"2-digit",month:"short"})+": "+v+" Session"+(v===1?"":"s");
+    wrap.appendChild(cell);
+    cur.setDate(cur.getDate()+1);
+  }
+}
+
+/* ============ CHEAT ============ */
+function renderCheat(){
+  const wrap=document.getElementById("cheatList");wrap.innerHTML="";
+  const weak=[];
+  state.current.exams.forEach(ex=>ex.modules.forEach(m=>m.topics.forEach(t=>{if(t.level<3)weak.push({subject:ex.subject,module:m.name,name:t.name,level:t.level});})));
+  if(!weak.length){wrap.innerHTML='<div class="empty-hint">Stark! Aktuell sitzt alles.</div>';return;}
+  const by={};weak.forEach(w=>{(by[w.subject]=by[w.subject]||[]).push(w);});
+  for(const subj in by){
+    const items=by[subj].sort((a,b)=>a.level-b.level);
+    const g=document.createElement("div");g.className="cheat-group";
+    g.innerHTML='<h5><span class="dot"></span>'+esc(subj)+' <span style="color:var(--text-faint);font-weight:400">· '+items.length+' offen</span></h5>';
+    items.forEach(w=>{const it=document.createElement("div");it.className="cheat-item";it.innerHTML='<span class="badge l'+w.level+'">'+LEVELS[w.level]+'</span><span class="ci-name">'+esc(w.name)+'</span><span class="ci-mod">'+esc(w.module)+'</span>';g.appendChild(it);});
+    wrap.appendChild(g);
+  }
+}
+
+/* ============ CALENDAR ============ */
+let calMonth=new Date().getMonth(),calYear=new Date().getFullYear();
+function renderCalendar(){
+  const grid=document.getElementById("calGrid");grid.innerHTML="";
+  const first=new Date(calYear,calMonth,1);
+  const monthName=first.toLocaleDateString("de-DE",{month:"long",year:"numeric"});
+  document.getElementById("calTitle").textContent=monthName;
+  ["Mo","Di","Mi","Do","Fr","Sa","So"].forEach(d=>{const c=document.createElement("div");c.className="cal-dow";c.textContent=d;grid.appendChild(c);});
+  let startDow=(first.getDay()+6)%7; // Montag=0
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const prevDays=new Date(calYear,calMonth,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  const semStart=state.current.semStart?new Date(state.current.semStart+"T00:00:00"):null;
+  const semEnd=state.current.semEnd?new Date(state.current.semEnd+"T00:00:00"):null;
+  // Prüfungszeitraum = erste bis letzte Klausur
+  let examDates=state.current.exams.map(e=>new Date(e.date+"T00:00:00")).sort((a,b)=>a-b);
+  const examStart=examDates[0],examEnd=examDates[examDates.length-1];
+  const cells=[];
+  for(let i=0;i<startDow;i++)cells.push({d:prevDays-startDow+1+i,out:true,date:new Date(calYear,calMonth-1,prevDays-startDow+1+i)});
+  for(let d=1;d<=daysInMonth;d++)cells.push({d,out:false,date:new Date(calYear,calMonth,d)});
+  while(cells.length%7!==0||cells.length<42){const idx=cells.length-(startDow+daysInMonth);cells.push({d:idx+1,out:true,date:new Date(calYear,calMonth+1,idx+1)});if(cells.length>=42)break;}
+  cells.forEach(c=>{
+    const cell=document.createElement("div");cell.className="cal-cell"+(c.out?" out":"");
+    const dt=c.date;dt.setHours(0,0,0,0);
+    const key=fmtDay(dt);
+    if(semStart&&dt>=semStart&&(!semEnd||dt<=semEnd))cell.classList.add("in-sem");
+    if(examStart&&examEnd&&dt>=examStart&&dt<=examEnd)cell.classList.add("in-exam");
+    if(dt.getTime()===today.getTime())cell.classList.add("today");
+    if(!c.out&&key===selectedDay)cell.classList.add("sel");
+    let html='<span class="dn">'+c.d+'</span>';
+    state.current.exams.forEach(ex=>{const ed=new Date(ex.date+"T00:00:00");ed.setHours(0,0,0,0);if(ed.getTime()===dt.getTime())html+='<div class="cal-exam" title="'+esc(ex.subject)+' '+ex.time+'">'+esc(ex.subject)+'</div>';});
+    // Plan-Marker
+    const plans=state.plans[key]||[];
+    if(plans.length){
+      let dots='<div class="plan-dots">';
+      plans.slice(0,4).forEach(p=>{dots+='<span class="pd'+(p.done?' done':'')+'" style="background:'+subjectColor(p.examId)+'"></span>';});
+      if(plans.length>4)dots+='<span class="more">+'+(plans.length-4)+'</span>';
+      dots+='</div>';html+=dots;
+    }
+    cell.innerHTML=html;
+    if(!c.out)cell.addEventListener("click",()=>selectDay(key));
+    grid.appendChild(cell);
+  });
+}
+
+/* ============ TAGESPLANUNG ============ */
+let selectedDay=todayStr;
+function selectDay(key){
+  selectedDay=key;
+  renderCalendar();
+  renderDayPanel();
+  document.getElementById("dayPanel").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function fillPlanSubjectSelect(){
+  const sel=document.getElementById("dpSubject");
+  sel.innerHTML=state.current.exams.map(e=>'<option value="'+e.id+'">'+esc(e.subject)+'</option>').join("")||'<option value="">— erst Kurse anlegen —</option>';
+  fillPlanTopicSelect();
+}
+function fillPlanTopicSelect(){
+  const sel=document.getElementById("dpTopic");
+  const exId=document.getElementById("dpSubject").value;
+  const ex=state.current.exams.find(e=>e.id===exId);
+  let opts='<option value="">— ganzes Fach / kein bestimmtes Thema —</option>';
+  if(ex)ex.modules.forEach(m=>{m.topics.forEach(t=>{opts+='<option value="'+t.id+'">'+esc(m.name)+' › '+esc(t.name)+'</option>';});});
+  sel.innerHTML=opts;
+}
+function renderDayPanel(){
+  const dateEl=document.getElementById("dpDate");
+  const hint=document.getElementById("dpHint");
+  const list=document.getElementById("dpList");
+  const add=document.getElementById("dpAdd");
+  if(!selectedDay){
+    dateEl.textContent="Tag im Kalender wählen";
+    hint.textContent="Klicke oben auf einen Tag, um zu planen, was du lernst.";
+    list.innerHTML="";add.classList.add("hidden");return;
+  }
+  const d=new Date(selectedDay+"T00:00:00");
+  dateEl.textContent=d.toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long",year:"numeric"});
+  const plans=state.plans[selectedDay]||[];
+  const openCount=plans.filter(p=>!p.done).length;
+  hint.textContent=plans.length?(openCount+" offen · "+plans.length+" geplant"):"Noch nichts geplant – füge unten ein Thema hinzu.";
+  add.classList.remove("hidden");
+  if(!state.current.exams.length){hint.textContent="Lege zuerst in den Einstellungen (⚙) Kurse an.";}
+  fillPlanSubjectSelect();
+  list.innerHTML="";
+  if(!plans.length){list.innerHTML='<div class="dp-empty">Keine Einträge für diesen Tag.</div>';return;}
+  plans.forEach(p=>{
+    const color=subjectColor(p.examId);
+    const row=document.createElement("div");row.className="plan-item"+(p.done?" done":"");
+    row.style.borderLeftColor=color;
+    const main=p.topicId?topicName(p.examId,p.topicId)||"(Thema gelöscht)":subjectName(p.examId);
+    const subBits=[];
+    if(p.topicId)subBits.push(esc(subjectName(p.examId)));
+    if(p.note)subBits.push(esc(p.note));
+    row.innerHTML='<button class="pi-check" title="Erledigt">'+(p.done?"✓":"")+'</button>'
+      +'<div class="pi-body"><div class="pi-main">'+esc(main)+'</div>'
+      +(subBits.length?'<div class="pi-sub">'+subBits.join(" · ")+'</div>':'')+'</div>'
+      +'<span class="pi-tag" style="background:'+color+'">'+esc(subjectName(p.examId))+'</span>'
+      +'<button class="pi-del" title="Löschen">✕</button>';
+    row.querySelector(".pi-check").addEventListener("click",()=>{p.done=!p.done;save();renderDayPanel();renderCalendar();});
+    row.querySelector(".pi-del").addEventListener("click",()=>{
+      state.plans[selectedDay]=state.plans[selectedDay].filter(x=>x.id!==p.id);
+      if(!state.plans[selectedDay].length)delete state.plans[selectedDay];
+      save();renderDayPanel();renderCalendar();
+    });
+    list.appendChild(row);
+  });
+}
+document.getElementById("dpSubject").addEventListener("change",fillPlanTopicSelect);
+document.getElementById("dpAddBtn").addEventListener("click",()=>{
+  if(!selectedDay)return;
+  const examId=document.getElementById("dpSubject").value;
+  if(!examId){alert("Bitte zuerst ein Fach wählen (ggf. in den Einstellungen anlegen).");return;}
+  const topicId=document.getElementById("dpTopic").value||null;
+  const note=document.getElementById("dpNote").value.trim();
+  if(!state.plans[selectedDay])state.plans[selectedDay]=[];
+  state.plans[selectedDay].push({id:uid(),examId,topicId,note,done:false});
+  document.getElementById("dpNote").value="";
+  save();renderDayPanel();renderCalendar();
+});
+
+/* ============ ARCHIVE & STATS ============ */
+function phaseStats(exams,sessionLog){
+  let secs=0,topics=0,mastered=0;
+  exams.forEach(ex=>{secs+=ex.seconds||0;const ts=ex.modules.flatMap(m=>m.topics);topics+=ts.length;mastered+=ts.filter(t=>t.level===3).length;});
+  let best=null,worst=null;
+  exams.forEach(ex=>{const p=examProgress(ex);if(best===null||p>best.p)best={n:ex.subject,p};if(worst===null||p<worst.p)worst={n:ex.subject,p};});
+  return{secs,topics,mastered,best,worst};
+}
+function renderArchive(){
+  const sr=document.getElementById("statRow");
+  let allSecs=0,allTopics=0,ratedSum=0,ratedCount=0;
+  state.archive.forEach(a=>{a.exams.forEach(ex=>{allTopics+=ex.modules.flatMap(m=>m.topics).length;allSecs+=ex.seconds||0;});if(a.ratings)for(const id in a.ratings){if(a.ratings[id].stars){ratedSum+=a.ratings[id].stars;ratedCount++;}}});
+  const avg=ratedCount?(ratedSum/ratedCount).toFixed(1):"–";
+  sr.innerHTML='<div class="stat-box"><div class="v">'+state.archive.length+'</div><div class="k">archivierte Phasen</div></div>'
+    +'<div class="stat-box"><div class="v">'+fmtMin(allSecs)+'</div><div class="k">Lernzeit gesamt</div></div>'
+    +'<div class="stat-box"><div class="v">'+allTopics+'</div><div class="k">Themen bearbeitet</div></div>'
+    +'<div class="stat-box"><div class="v">'+avg+' ★</div><div class="k">Ø Selbst-Bewertung</div></div>';
+  const wrap=document.getElementById("archiveList");wrap.innerHTML="";
+  if(!state.archive.length){wrap.innerHTML='<div class="empty-hint">Noch nichts archiviert. Wird automatisch einen Tag nach der letzten Klausur angeboten.</div>';return;}
+  [...state.archive].reverse().forEach((a,ri)=>{
+    const realIdx=state.archive.length-1-ri;
+    const card=document.createElement("div");card.className="archive-card";
+    const when=new Date(a.archivedAt).toLocaleDateString("de-DE",{day:"2-digit",month:"long",year:"numeric"});
+    card.innerHTML='<div class="ah"><h3>'+esc(a.semester||"Prüfungsphase")+'</h3><span class="when">archiviert am '+when+'</span></div>';
+    const grid=document.createElement("div");grid.className="archive-grid";
+    a.exams.forEach(ex=>{
+      const r=a.ratings&&a.ratings[ex.id]?a.ratings[ex.id]:null;
+      const stars=r&&r.stars?"★".repeat(r.stars)+"☆".repeat(5-r.stars):"nicht bewertet";
+      const ts=ex.modules.flatMap(m=>m.topics);const prog=ts.length?Math.round(ts.reduce((x,t)=>x+t.level,0)/(ts.length*3)*100):0;
+      const sub=document.createElement("div");sub.className="arch-sub";
+      const gradeStr=ex.grade!=null&&ex.grade!==""?" · Note: "+ex.grade:"";
+      sub.innerHTML='<div class="n">'+esc(ex.subject)+'</div>'
+        +'<div class="s" style="margin-bottom:2px"><span class="type-badge">'+esc(ex.type||"Klausur")+'</span></div>'
+        +'<div class="s">'+prog+'% vorbereitet · '+fmtMin(ex.seconds||0)+gradeStr+'</div>'
+        +'<div class="s stars">'+stars+'</div>'+(r&&r.note?'<div class="s" style="margin-top:4px;font-style:italic">"'+esc(r.note)+'"</div>':"");
+      grid.appendChild(sub);
+    });
+    card.appendChild(grid);
+    const row=document.createElement("div");row.className="wrapped-btn-row";
+    const wb=document.createElement("button");wb.className="btn gold sm";wb.textContent="✨ Wrapped ansehen";
+    wb.addEventListener("click",()=>openWrapped(a));
+    row.appendChild(wb);card.appendChild(row);
+    wrap.appendChild(card);
+  });
+}
+
+/* ============ ARCHIV-AUTOMATIK ============ */
+function checkArchive(){
+  const banner=document.getElementById("archiveBanner");
+  if(!state.current.exams.length){banner.classList.add("hidden");return;}
+  const last=state.current.exams.reduce((mx,e)=>{const d=new Date(e.date+"T"+(e.time||"00:00")+":00");return d>mx?d:mx;},new Date(0));
+  if(new Date()>=new Date(last.getTime()+86400000)){
+    banner.classList.remove("hidden");
+    banner.querySelector(".bt").innerHTML='Deine letzte Klausur ist vorbei. <strong>Zeit, die Phase zu bewerten und zu archivieren.</strong>';
+  }else banner.classList.add("hidden");
+}
+
+/* ============ POMODORO SELECT ============ */
+function renderPomoSelect(){
+  const sel=document.getElementById("pomoSubjectSel");const prev=sel.value;
+  sel.innerHTML=state.current.exams.map(e=>'<option value="'+e.id+'">'+esc(e.subject)+'</option>').join("")||'<option value="">—</option>';
+  if([...sel.options].some(o=>o.value===prev))sel.value=prev;
+}
+
+/* ============ MOTIVATION ============ */
+function showQuote(){
+  const q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById("quoteText").textContent="„"+q.t+"“";
+  document.getElementById("quoteTrans").textContent=q.d;
+  document.getElementById("quoteAuthor").textContent="— "+q.a;
+}
+
+/* ============ POMODORO ============ */
+let P={mode:"focus",round:1,remaining:state.pomo.focus*60,running:false,interval:null};
+const RING=2*Math.PI*85;
+function pTotal(){return(P.mode==="focus"?state.pomo.focus:P.mode==="long"?state.pomo.long:state.pomo.short)*60;}
+function pLabel(){return P.mode==="focus"?"Fokus":P.mode==="long"?"Lange Pause":"Kurze Pause";}
+function renderPomo(){
+  const m=Math.floor(P.remaining/60),s=P.remaining%60;
+  document.getElementById("pomoTime").textContent=String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  document.getElementById("pomoMode").textContent=pLabel();
+  document.getElementById("pomoRound").textContent="Runde "+P.round+" / "+state.pomo.rounds;
+  document.getElementById("pomo").classList.toggle("break",P.mode!=="focus");
+  document.getElementById("pomoRing").style.strokeDashoffset=RING*(1-P.remaining/pTotal());
+  document.getElementById("pomoStart").textContent=P.running?"Pause":"Start";
+  document.getElementById("statSessions").textContent=state.stats.sessions;
+  document.getElementById("statFocus").textContent=state.stats.focusMin;
+}
+function tick(){
+  if(P.remaining>0){
+    P.remaining--;
+    if(P.mode==="focus"){const id=document.getElementById("pomoSubjectSel").value;const ex=state.current.exams.find(e=>e.id===id);if(ex){ex.seconds=(ex.seconds||0)+1;if(P.remaining%15===0){save();renderOverall();}}}
+    renderPomo();
+  }else nextPhase();
+}
+function nextPhase(){
+  if(P.mode==="focus"){
+    state.stats.sessions++;state.stats.focusMin+=state.pomo.focus;
+    state.sessionLog[todayStr]=(state.sessionLog[todayStr]||0)+1;
+    save();ding();
+    if(P.round>=state.pomo.rounds){P.mode="long";P.round=1;}else{P.mode="short";P.round++;}
+    notify("Block geschafft – mach eine Pause!");
+  }else{P.mode="focus";ding();notify("Pause vorbei – weiter geht's!");}
+  P.remaining=pTotal();P.running=false;clearInterval(P.interval);renderPomo();renderCountdowns();
+}
+function togglePomo(){if(P.running){P.running=false;clearInterval(P.interval);}else{P.running=true;P.interval=setInterval(tick,1000);}renderPomo();}
+function resetPomo(){clearInterval(P.interval);P={mode:"focus",round:1,remaining:state.pomo.focus*60,running:false,interval:null};save();renderPomo();}
+function ding(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type="sine";o.frequency.value=660;g.gain.setValueAtTime(.0001,c.currentTime);g.gain.exponentialRampToValueAtTime(.25,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.6);o.start();o.stop(c.currentTime+.6);}catch(e){}}
+function notify(msg){if("Notification"in window&&Notification.permission==="granted")new Notification("Pensum",{body:msg});}
+if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
+
+/* ============ MODALS GENERIC ============ */
+function openModal(id){document.getElementById(id).classList.add("open");}
+function closeModal(id){document.getElementById(id).classList.remove("open");}
+document.querySelectorAll("[data-close]").forEach(b=>b.addEventListener("click",e=>e.target.closest(".modal-bg").classList.remove("open")));
+document.querySelectorAll(".modal-bg").forEach(bg=>bg.addEventListener("click",e=>{if(e.target===bg)bg.classList.remove("open");}));
+
+/* ============ SETTINGS ============ */
+function weightRowHtml(ex){
+  const mode=ex&&ex.weightMode?ex.weightMode:"none";
+  const credits=ex&&ex.credits!=null?ex.credits:5;
+  const imp=ex&&ex.importance!=null?ex.importance:2;
+  return '<div class="c-weight">'
+    +'<select class="c-wmode" title="Gewichtung im Gesamtfortschritt">'
+      +'<option value="none"'+(mode==="none"?" selected":"")+'>Gleich gewichtet</option>'
+      +'<option value="credits"'+(mode==="credits"?" selected":"")+'>Nach Credits (ECTS)</option>'
+      +'<option value="importance"'+(mode==="importance"?" selected":"")+'>Nach Wichtigkeit</option>'
+    +'</select>'
+    +'<input type="number" class="c-credits" min="1" max="60" step="1" value="'+credits+'" title="ECTS" style="'+(mode==="credits"?"":"display:none")+'">'
+    +'<select class="c-importance" title="Wichtigkeit" style="'+(mode==="importance"?"":"display:none")+'">'
+      +'<option value="1"'+(imp===1?" selected":"")+'>niedrig</option>'
+      +'<option value="2"'+(imp===2?" selected":"")+'>mittel</option>'
+      +'<option value="3"'+(imp===3?" selected":"")+'>hoch</option>'
+    +'</select>'
+  +'</div>';
+}
+function bindWeightRow(row){
+  const mode=row.querySelector(".c-wmode");
+  const cr=row.querySelector(".c-credits");
+  const im=row.querySelector(".c-importance");
+  mode.addEventListener("change",()=>{
+    cr.style.display=mode.value==="credits"?"":"none";
+    im.style.display=mode.value==="importance"?"":"none";
+  });
+}
+const EXAM_TYPES=["Klausur","Hausarbeit","Laborarbeit","Projektarbeit","Testat","Thesis"];
+function typeSelectHtml(current){
+  return '<select class="c-type">'+EXAM_TYPES.map(t=>'<option'+(t===(current||"Klausur")?" selected":"")+'>'+t+'</option>').join("")+'</select>';
+}
+function renderCourseRows(){
+  const wrap=document.getElementById("courseRows");wrap.innerHTML="";
+  state.current.exams.forEach(ex=>{
+    const row=document.createElement("div");row.className="course-row";
+    row.innerHTML='<div class="c-main"><input type="text" class="c-name" value="'+esc(ex.subject)+'" placeholder="Fach">'
+      +typeSelectHtml(ex.type)
+      +'<input type="date" class="c-date" value="'+ex.date+'">'
+      +'<input type="time" class="c-time" value="'+(ex.time||"09:00")+'">'
+      +'<button class="icon-btn danger del-c" title="Entfernen">✕</button></div>'
+      +weightRowHtml(ex);
+    row.dataset.id=ex.id;
+    row.querySelector(".del-c").addEventListener("click",()=>{row.remove();});
+    bindWeightRow(row);
+    wrap.appendChild(row);
+  });
+}
+document.getElementById("openSettings").addEventListener("click",()=>{
+  document.getElementById("setName").value=state.user||"";
+  document.getElementById("setSemester").value=state.current.semester||"";
+  document.getElementById("setSemStart").value=state.current.semStart||"";
+  document.getElementById("setSemEnd").value=state.current.semEnd||"";
+  renderCourseRows();openModal("settingsModal");
+});
+document.getElementById("addCourseRow").addEventListener("click",()=>{
+  const wrap=document.getElementById("courseRows");
+  const row=document.createElement("div");row.className="course-row";row.dataset.id="new-"+uid();
+  row.innerHTML='<div class="c-main"><input type="text" class="c-name" value="" placeholder="Fach">'
+    +typeSelectHtml(null)
+    +'<input type="date" class="c-date" value="">'
+    +'<input type="time" class="c-time" value="09:00">'
+    +'<button class="icon-btn danger del-c" title="Entfernen">✕</button></div>'
+    +weightRowHtml(null);
+  row.querySelector(".del-c").addEventListener("click",()=>row.remove());
+  bindWeightRow(row);
+  wrap.appendChild(row);
+});
+document.getElementById("saveSettings").addEventListener("click",()=>{
+  state.user=document.getElementById("setName").value.trim();
+  state.current.semester=document.getElementById("setSemester").value.trim();
+  state.current.semStart=document.getElementById("setSemStart").value;
+  state.current.semEnd=document.getElementById("setSemEnd").value;
+  const rows=[...document.querySelectorAll("#courseRows .course-row")];
+  const newExams=[];
+  rows.forEach(r=>{
+    const name=r.querySelector(".c-name").value.trim();
+    const date=r.querySelector(".c-date").value;
+    const time=r.querySelector(".c-time").value||"09:00";
+    if(!name||!date)return;
+    const wmode=r.querySelector(".c-wmode").value;
+    const credits=Math.max(1,Math.min(60,parseInt(r.querySelector(".c-credits").value,10)||5));
+    const importance=Math.max(1,Math.min(3,parseInt(r.querySelector(".c-importance").value,10)||2));
+    const type=r.querySelector(".c-type").value||"Klausur";
+    const existing=state.current.exams.find(e=>e.id===r.dataset.id);
+    if(existing){existing.subject=name;existing.date=date;existing.time=time;existing.type=type;existing.weightMode=wmode;existing.credits=credits;existing.importance=importance;newExams.push(existing);}
+    else{const ne=mkExam(name,date,time);ne.type=type;ne.weightMode=wmode;ne.credits=credits;ne.importance=importance;newExams.push(ne);}
+  });
+  newExams.sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+  state.current.exams=newExams;
+  save();closeModal("settingsModal");renderAll();
+});
+
+/* ============ RATE & ARCHIVE ============ */
+function openRate(){
+  const wrap=document.getElementById("rateBlocks");wrap.innerHTML="";
+  state.current.exams.forEach(ex=>{
+    const b=document.createElement("div");b.className="rate-block";b.dataset.ex=ex.id;b.dataset.stars="0";
+    let stars="";for(let i=1;i<=5;i++)stars+='<span data-s="'+i+'">☆</span>';
+    b.innerHTML='<div class="rn">'+esc(ex.subject)+'</div><div class="star-pick">'+stars+'</div><textarea class="rate-note" placeholder="Notiz (was lief gut/schlecht?)"></textarea>';
+    b.querySelectorAll(".star-pick span").forEach(sp=>sp.addEventListener("click",()=>{const v=+sp.dataset.s;b.dataset.stars=v;b.querySelectorAll(".star-pick span").forEach((x,i)=>{x.classList.toggle("on",i<v);x.textContent=i<v?"★":"☆";});}));
+    wrap.appendChild(b);
+  });
+  openModal("rateModal");
+}
+document.getElementById("bannerAction").addEventListener("click",openRate);
+document.getElementById("rateSave").addEventListener("click",()=>{
+  const ratings={};
+  document.querySelectorAll("#rateBlocks .rate-block").forEach(b=>{ratings[b.dataset.ex]={stars:+b.dataset.stars,note:b.querySelector(".rate-note").value.trim()};});
+  const entry={semester:state.current.semester,archivedAt:Date.now(),exams:JSON.parse(JSON.stringify(state.current.exams)),ratings,sessionLog:JSON.parse(JSON.stringify(state.sessionLog))};
+  state.archive.push(entry);
+  const oldSem=state.current.semester,oldStart=state.current.semStart,oldEnd=state.current.semEnd;
+  state.current=freshPhase();state.current.semester=oldSem;state.current.semStart=oldStart;state.current.semEnd=oldEnd;
+  state.sessionLog={};
+  save();closeModal("rateModal");renderAll();
+  openWrapped(entry);
+});
+
+/* ============ WRAPPED ============ */
+let wrapSlide=0,wrapCount=0,wrapData=null,wrapSlidesData=[];
+function openWrapped(a){
+  wrapData=a;
+  const st=phaseStats(a.exams);
+  const sessions=a.sessionLog?Object.values(a.sessionLog).reduce((x,y)=>x+y,0):0;
+  const activeDays=a.sessionLog?Object.keys(a.sessionLog).filter(k=>a.sessionLog[k]>0).length:0;
+  let bestDay=null,bestDayN=0;if(a.sessionLog)for(const k in a.sessionLog){if(a.sessionLog[k]>bestDayN){bestDayN=a.sessionLog[k];bestDay=k;}}
+  const bestDayFmt=bestDay?new Date(bestDay+"T00:00:00").toLocaleDateString("de-DE",{weekday:"long",day:"2-digit",month:"long"}):"—";
+  const perSubject=a.exams.map(ex=>({n:ex.subject,sec:ex.seconds||0})).sort((x,y)=>y.sec-x.sec);
+  // Strukturierte Daten für den Canvas-PNG-Export (parallel zu den HTML-Slides)
+  wrapSlidesData=[
+    {kicker:"Pensum Wrapped",title:a.semester||"Deine Prüfungsphase",sub:"Deine Prüfungsphase in Zahlen.",accent:"#cda86a",laurel:true},
+    {kicker:"Gelernte Zeit",big:fmtMin(st.secs),cap:"insgesamt im Fokus",list:perSubject.map(s=>[s.n,fmtMin(s.sec)])},
+    {kicker:"Themen gemeistert",big:String(st.mastered),cap:"von "+st.topics+" Unterthemen sitzen",sub:(st.topics?Math.round(st.mastered/st.topics*100):0)+"% deines Stoffs sicher drauf."},
+    {kicker:"Deine Fächer",pairs:[["Am besten vorbereitet",(st.best?st.best.n:"—"),(st.best?Math.round(st.best.p*100):0)+"% bereit","#9fe0cb"],["Größte Herausforderung",(st.worst?st.worst.n:"—"),(st.worst?Math.round(st.worst.p*100):0)+"% bereit","#e8b08f"]]},
+    {kicker:"Dein Einsatz",big:String(sessions),cap:"Fokus-Sessions",list:[["Aktive Lerntage",String(activeDays)],["Produktivster Tag",bestDayN+" Sessions"]],sub:bestDayFmt+"\nPer aspera ad astra."}
+  ];
+  const story=document.getElementById("story");
+  const slides=[];
+  // Slide 1 – Intro
+  slides.push('<div class="slide s1 active">'+LAUREL.replace('<svg','<svg class="laurel"')+'<div class="kicker">Pensum Wrapped</div><div class="cap" style="font-family:Georgia,serif;font-size:1.4rem">'+esc(a.semester||"Deine Prüfungsphase")+'</div><div class="sub">Deine Prüfungsphase in Zahlen.<br>Tippe rechts ›</div><div class="wm">Pensum</div></div>');
+  // Slide 2 – Lernzeit
+  let timeList='';perSubject.forEach(s=>{timeList+='<div class="li"><span>'+esc(s.n)+'</span><span>'+fmtMin(s.sec)+'</span></div>';});
+  slides.push('<div class="slide s2"><div class="kicker">Gelernte Zeit</div><div class="big sm">'+fmtMin(st.secs)+'</div><div class="cap">insgesamt im Fokus</div><div class="list">'+(timeList||'<div class="li"><span>Keine Zeit erfasst</span></div>')+'</div><div class="wm">Pensum</div></div>');
+  // Slide 3 – Themen gemeistert
+  slides.push('<div class="slide s3"><div class="kicker">Themen gemeistert</div><div class="big">'+st.mastered+'</div><div class="cap">von '+st.topics+' Unterthemen sitzen</div><div class="sub">'+(st.topics?Math.round(st.mastered/st.topics*100):0)+'% deines Stoffs hattest du am Ende sicher drauf.</div><div class="wm">Pensum</div></div>');
+  // Slide 4 – Best/Worst
+  slides.push('<div class="slide s4"><div class="kicker">Deine Fächer</div><div class="cap" style="margin-top:0">Am besten vorbereitet</div><div class="big sm" style="color:#9fe0cb">'+esc(st.best?st.best.n:"—")+'</div><div class="sub">'+(st.best?Math.round(st.best.p*100):0)+'% bereit</div><div class="cap" style="margin-top:28px">Größte Herausforderung</div><div class="big sm" style="color:#e8b08f">'+esc(st.worst?st.worst.n:"—")+'</div><div class="sub">'+(st.worst?Math.round(st.worst.p*100):0)+'% bereit</div><div class="wm">Pensum</div></div>');
+  // Slide 5 – Sessions & Streak
+  slides.push('<div class="slide s5"><div class="kicker">Dein Einsatz</div><div class="big">'+sessions+'</div><div class="cap">Fokus-Sessions</div><div class="list"><div class="li"><span>Aktive Lerntage</span><span>'+activeDays+'</span></div><div class="li"><span>Produktivster Tag</span><span>'+bestDayN+' Sessions</span></div></div><div class="sub">'+bestDayFmt+'<br><br>Per aspera ad astra. ✨</div><div class="wm">Pensum</div></div>');
+  story.innerHTML='<div class="story-dots" id="storyDots"></div>'+slides.join("")+'<div class="story-tap"><div class="l" id="tapL"></div><div class="r" id="tapR"></div></div>';
+  wrapCount=slides.length;wrapSlide=0;
+  const dots=document.getElementById("storyDots");dots.innerHTML="";for(let i=0;i<wrapCount;i++){const d=document.createElement("div");d.className="d"+(i===0?" on":"");dots.appendChild(d);}
+  document.getElementById("tapR").onclick=()=>gotoSlide(wrapSlide+1);
+  document.getElementById("tapL").onclick=()=>gotoSlide(wrapSlide-1);
+  openModal("wrappedModal");
+}
+function gotoSlide(i){
+  if(i<0||i>=wrapCount)return;
+  const slides=document.querySelectorAll("#story .slide");
+  slides[wrapSlide].classList.remove("active");
+  wrapSlide=i;slides[wrapSlide].classList.add("active");
+  document.querySelectorAll("#storyDots .d").forEach((d,idx)=>d.classList.toggle("on",idx<=wrapSlide));
+}
+/* ---- Wrapped-Slide als echtes 9:16-PNG rendern ---- */
+function drawWrappedSlide(data){
+  const W=1080,H=1920;
+  const cv=document.createElement("canvas");cv.width=W;cv.height=H;
+  const g=cv.getContext("2d");
+  // Hintergrund-Verlauf
+  const grad=g.createLinearGradient(0,0,W,H);
+  grad.addColorStop(0,"#1b211f");grad.addColorStop(.55,"#161a1c");grad.addColorStop(1,"#22201a");
+  g.fillStyle=grad;g.fillRect(0,0,W,H);
+  // dezenter Akzent-Schein oben
+  const rg=g.createRadialGradient(W/2,H*.28,40,W/2,H*.28,700);
+  rg.addColorStop(0,"rgba(127,189,170,.16)");rg.addColorStop(1,"rgba(127,189,170,0)");
+  g.fillStyle=rg;g.fillRect(0,0,W,H);
+  g.textAlign="center";
+  const cx=W/2;let y=H*0.30;
+  const accent=data.accent||"#7fbdaa";
+  // Kicker
+  g.fillStyle=accent;g.font="600 40px Helvetica,Arial,sans-serif";
+  g.fillText((data.kicker||"").toUpperCase(),cx,y);y+=40;
+  // großer Wert / Titel
+  if(data.big){g.fillStyle="#f3f1ea";g.font="800 220px Georgia,serif";g.fillText(data.big,cx,y+150);y+=240;}
+  if(data.title){g.fillStyle="#f3f1ea";g.font="700 84px Georgia,serif";wrapText(g,data.title,cx,y+90,W-180,92);y+=190;}
+  // Caption
+  if(data.cap){g.fillStyle="#c9cdd1";g.font="400 46px Helvetica,Arial,sans-serif";g.fillText(data.cap,cx,y+10);y+=80;}
+  // Liste
+  if(data.list&&data.list.length){
+    y+=30;g.font="500 44px Helvetica,Arial,sans-serif";
+    data.list.forEach(row=>{
+      g.textAlign="left";g.fillStyle="#d9dde0";g.fillText(row[0],180,y);
+      g.textAlign="right";g.fillStyle=accent;g.fillText(row[1],W-180,y);
+      y+=76;
+    });
+    g.textAlign="center";
+  }
+  // Paare (best/worst)
+  if(data.pairs){
+    y+=10;
+    data.pairs.forEach(p=>{
+      g.fillStyle="#c9cdd1";g.font="400 42px Helvetica,Arial,sans-serif";g.fillText(p[0],cx,y);y+=86;
+      g.fillStyle=p[3]||accent;g.font="700 76px Georgia,serif";wrapText(g,p[1],cx,y,W-200,80);y+=78;
+      g.fillStyle="#9aa3ab";g.font="400 40px Helvetica,Arial,sans-serif";g.fillText(p[2],cx,y);y+=120;
+    });
+  }
+  // Sub-Text (mehrzeilig)
+  if(data.sub){g.fillStyle="#aeb4ba";g.font="400 42px Helvetica,Arial,sans-serif";
+    data.sub.split("\n").forEach(line=>{g.fillText(line,cx,y+10);y+=64;});
+  }
+  // Watermark
+  g.fillStyle="rgba(205,168,106,.85)";g.font="600 42px Georgia,serif";
+  g.fillText("✦ Pensum",cx,H-90);
+  return cv;
+}
+function wrapText(ctx,text,x,y,maxW,lh){
+  const words=String(text).split(" ");let line="",ly=y;
+  for(let i=0;i<words.length;i++){
+    const test=line+words[i]+" ";
+    if(ctx.measureText(test).width>maxW&&i>0){ctx.fillText(line.trim(),x,ly);line=words[i]+" ";ly+=lh;}
+    else line=test;
+  }
+  ctx.fillText(line.trim(),x,ly);
+}
+document.getElementById("dlWrapped").addEventListener("click",()=>{
+  if(!wrapSlidesData.length){return;}
+  const data=wrapSlidesData[wrapSlide]||wrapSlidesData[0];
+  const cv=drawWrappedSlide(data);
+  cv.toBlob(blob=>{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="pensum-wrapped-"+(wrapSlide+1)+".png";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  },"image/png");
+});
+
+/* ============ TABS ============ */
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===name));
+  ["dashboard","calendar","cheat","archive"].forEach(n=>document.getElementById("tab-"+n).classList.toggle("hidden",n!==name));
+  if(name==="calendar"){renderCalendar();renderDayPanel();}
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+document.getElementById("calPrev").addEventListener("click",()=>{calMonth--;if(calMonth<0){calMonth=11;calYear--;}renderCalendar();});
+document.getElementById("calNext").addEventListener("click",()=>{calMonth++;if(calMonth>11){calMonth=0;calYear++;}renderCalendar();});
+document.getElementById("calToday").addEventListener("click",()=>{calMonth=new Date().getMonth();calYear=new Date().getFullYear();renderCalendar();});
+
+/* ============ TIMER SETTINGS ============ */
+document.getElementById("settingsToggle").addEventListener("click",()=>{
+  const s=document.getElementById("pomoSettings");s.classList.toggle("open");
+  document.getElementById("setFocus").value=state.pomo.focus;document.getElementById("setShort").value=state.pomo.short;
+  document.getElementById("setLong").value=state.pomo.long;document.getElementById("setRounds").value=state.pomo.rounds;
+});
+document.getElementById("applySettings").addEventListener("click",()=>{
+  const clamp=(v,a,b)=>{v=isNaN(v)?a:v;return Math.max(a,Math.min(b,v));};
+  state.pomo.focus=clamp(+document.getElementById("setFocus").value,1,180);
+  state.pomo.short=clamp(+document.getElementById("setShort").value,1,60);
+  state.pomo.long=clamp(+document.getElementById("setLong").value,1,60);
+  state.pomo.rounds=clamp(+document.getElementById("setRounds").value,1,12);
+  save();resetPomo();document.getElementById("pomoSettings").classList.remove("open");
+});
+
+/* ============ EXPORT/RESET ============ */
+document.getElementById("exportBtn").addEventListener("click",()=>{
+  const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="pensum-backup-"+todayStr+".json";a.click();
+});
+document.getElementById("importBtn").addEventListener("click",()=>document.getElementById("importFile").click());
+document.getElementById("importFile").addEventListener("change",e=>{
+  const file=e.target.files&&e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result);
+      if(!data||typeof data!=="object"||!data.current||!Array.isArray(data.current.exams))
+        throw new Error("Kein gültiges Pensum-Backup.");
+      if(!confirm("Backup importieren? Deine aktuellen Daten werden ersetzt (vorher ggf. exportieren)."))return;
+      state=data;
+      if(!state.sessionLog)state.sessionLog={};
+      if(!state.theme)state.theme="light";
+      if(state.dayGoalMin==null)state.dayGoalMin=120;
+      if(!state.plans)state.plans={};
+      if(!state.pomo)state.pomo={focus:25,short:5,long:15,rounds:4};
+      if(!state.stats)state.stats={date:todayStr,sessions:0,focusMin:0};
+      if(!state.archive)state.archive=[];
+      state.current.exams.forEach(ex=>{
+        if(ex.weightMode==null)ex.weightMode="none";if(ex.credits==null)ex.credits=5;if(ex.importance==null)ex.importance=2;
+        ex.modules.forEach(m=>m.topics.forEach(t=>{if(t.masteredAt===undefined)t.masteredAt=null;if(t.nextReview===undefined)t.nextReview=null;}));
+      });
+      applyTheme();save();renderAll();resetPomo();
+      alert("Backup erfolgreich importiert. ✓");
+    }catch(err){alert("Import fehlgeschlagen: "+err.message);}
+    finally{e.target.value="";}
+  };
+  reader.readAsText(file);
+});
+document.getElementById("resetAll").addEventListener("click",()=>{
+  if(confirm("Aktuelle Phase zurücksetzen? Archiv & Statistik bleiben erhalten.")){
+    const s=state.current.semester,a=state.current.semStart,e=state.current.semEnd;
+    state.current=freshPhase();state.current.semester=s;state.current.semStart=a;state.current.semEnd=e;state.sessionLog={};save();renderAll();
+  }
+});
+
+/* ============ THEME ============ */
+function applyTheme(){
+  document.documentElement.setAttribute("data-theme",state.theme||"light");
+  const btn=document.getElementById("themeToggle");
+  if(btn)btn.textContent=state.theme==="dark"?"☀":"☾";
+  if(btn)btn.title=state.theme==="dark"?"Heller Modus":"Dunkler Modus";
+}
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  state.theme=state.theme==="dark"?"light":"dark";applyTheme();save();
+});
+
+/* ============ TAGESZIEL BEARBEITEN ============ */
+document.getElementById("dgEdit").addEventListener("click",()=>{
+  const v=prompt("Tägliches Lernziel in Minuten:",state.dayGoalMin||120);
+  if(v===null)return;const n=parseInt(v,10);
+  if(isNaN(n)||n<5||n>1440){alert("Bitte eine Zahl zwischen 5 und 1440 eingeben.");return;}
+  state.dayGoalMin=n;save();renderDayGoal();
+});
+
+/* ============ TASTATUR-SHORTCUTS ============ */
+document.addEventListener("keydown",e=>{
+  const wrapOpen=document.getElementById("wrappedModal").classList.contains("open");
+  // Wrapped-Navigation mit Pfeiltasten / Escape
+  if(wrapOpen){
+    if(e.key==="ArrowRight"||e.key===" "){e.preventDefault();gotoSlide(wrapSlide+1);}
+    else if(e.key==="ArrowLeft"){e.preventDefault();gotoSlide(wrapSlide-1);}
+    else if(e.key==="Escape")closeModal("wrappedModal");
+    return;
+  }
+  // nicht eingreifen, während getippt wird
+  const tag=(e.target.tagName||"").toLowerCase();
+  if(e.target.isContentEditable||tag==="input"||tag==="textarea"||tag==="select")return;
+  const anyModal=[...document.querySelectorAll(".modal-bg")].some(m=>m.classList.contains("open"));
+  if(anyModal){if(e.key==="Escape")document.querySelectorAll(".modal-bg.open").forEach(m=>m.classList.remove("open"));return;}
+  if(e.key===" "){e.preventDefault();togglePomo();}
+  else if(e.key==="r"||e.key==="R"){resetPomo();}
+  else if(e.key==="t"||e.key==="T"){document.getElementById("themeToggle").click();}
+});
+
+/* ============ BUTTONS ============ */
+document.getElementById("pomoStart").addEventListener("click",togglePomo);
+document.getElementById("pomoReset").addEventListener("click",resetPomo);
+document.getElementById("quoteRefresh").addEventListener("click",showQuote);
+
+/* ============ RENDER ALL ============ */
+function renderAll(){renderHeader();renderCountdowns();renderSubjects();renderOverall();renderStreak();renderDayGoal();renderNextTask();renderReviewBanner();renderHeatmap();renderCheat();renderArchive();renderPomoSelect();checkArchive();}
+
+/* ============ INIT ============ */
+applyTheme();renderAll();showQuote();renderPomo();
+setInterval(()=>{renderCountdowns();checkArchive();renderReviewBanner();renderNextTask();renderStreak();},60000);
+</script>
+</body>
+</html>
