@@ -371,6 +371,19 @@
   .grade-display{font-size:1.4rem;font-weight:700;color:var(--gold);letter-spacing:-.01em}
   .heat-months{display:flex;gap:3px;font-size:.66rem;color:var(--text-faint);margin-bottom:4px}
   @media(max-width:860px){.grid{grid-template-columns:1fr}.side{position:static}}
+
+  /* Help Modal */
+  .help-section{margin-bottom:22px}
+  .help-section:last-child{margin-bottom:0}
+  .help-section h3{font-size:.9rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .help-section h3 .hi{font-size:1rem}
+  .help-item{display:flex;gap:10px;margin-bottom:8px;align-items:flex-start}
+  .help-item .hk{flex-shrink:0;background:var(--bg-soft);border:1px solid var(--border);border-radius:7px;padding:3px 9px;font-size:.75rem;font-weight:700;color:var(--accent);min-width:80px;text-align:center;margin-top:1px}
+  .help-item .hv{font-size:.86rem;color:var(--text-dim);line-height:1.45}
+  .help-item .hv b{color:var(--text)}
+  .help-divider{border:none;border-top:1px solid var(--border);margin:18px 0}
+  .help-note{background:var(--bg-soft);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:10px 14px;font-size:.84rem;color:var(--text-dim);line-height:1.5}
+  .help-note b{color:var(--gold)}
 </style>
 </head>
 <body>
@@ -390,6 +403,7 @@
         <div class="sem-line" id="semLine">—</div>
       </div>
       <div class="streak cold" id="streakBadge" title="Lern-Streak"><span class="flame">🔥</span><span id="streakNum">0</span></div>
+      <button class="gear" id="openHelp" title="Hilfe & Funktionen">?</button>
       <button class="gear" id="themeToggle" title="Hell/Dunkel umschalten">☾</button>
       <button class="gear" id="openSettings" title="Einstellungen">⚙</button>
     </div>
@@ -570,6 +584,60 @@
     <input type="file" id="importFile" accept="application/json,.json" style="display:none">
     <div style="margin-top:10px;opacity:.7">Pensum · erstellt von Carolin Bauer · Digital Technology &amp; Consulting</div>
   </footer>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-bg" id="helpModal">
+  <div class="modal" style="max-width:600px">
+    <h2 style="margin-bottom:4px">Wie funktioniert Pensum?</h2>
+    <p class="desc">Ein Überblick über alle Features – von Countdown bis Archiv.</p>
+
+    <div class="help-section">
+      <h3><span class="hi">⚙</span> Einrichten</h3>
+      <div class="help-item"><span class="hk">Einstellungen</span><div class="hv">Über das <b>⚙-Symbol</b> oben rechts trägst du deinen Namen, dein Semester und deine Kurse ein. Pro Kurs gibst du <b>Fach, Prüfungsart, Datum und Uhrzeit</b> an.</div></div>
+      <div class="help-item"><span class="hk">Prüfungsarten</span><div class="hv"><b>Klausur, Hausarbeit, Laborarbeit, Projektarbeit, Testat, Thesis</b> – der Stichtag ist jeweils das eingetragene Datum.</div></div>
+    </div>
+
+    <div class="help-section">
+      <h3><span class="hi">📚</span> Lernfortschritt</h3>
+      <div class="help-item"><span class="hk">Module</span><div class="hv">Jedes Fach besteht aus <b>Modulen</b> (z.B. Kapitel) und darin <b>Unterthemen</b>. Beides kannst du frei umbenennen und ergänzen.</div></div>
+      <div class="help-item"><span class="hk">Levels</span><div class="hv">Bewerte jedes Thema mit <b>— / ! / ~ / ✓</b> (Noch nicht · Unsicher · Geht so · Sitzt). Der Fortschrittsbalken berechnet sich daraus automatisch.</div></div>
+      <div class="help-item"><span class="hk">Wiederholen</span><div class="hv">Sitzt ein Thema (✓), erinnert dich Pensum nach <b>3 und 7 Tagen</b> per Spaced Repetition ans Auffrischen – das ↻-Symbol erscheint dann im Thema.</div></div>
+    </div>
+
+    <div class="help-section">
+      <h3><span class="hi">⏱</span> Pomodoro-Timer</h3>
+      <div class="help-item"><span class="hk">Start</span><div class="hv">Wähle das Fach, für das du lernst, und starte den Timer. Die <b>Lernzeit wird automatisch dem Fach gutgeschrieben</b> – Sekunde für Sekunde.</div></div>
+      <div class="help-item"><span class="hk">Tastenkürzel</span><div class="hv"><b>Leertaste</b> = Start/Pause · <b>R</b> = Reset · <b>T</b> = Theme wechseln</div></div>
+    </div>
+
+    <div class="help-section">
+      <h3><span class="hi">📅</span> Kalender & Tagesplanung</h3>
+      <div class="help-item"><span class="hk">Tagesplan</span><div class="hv">Klicke im Kalender auf einen Tag, um zu planen, welche Themen du lernen möchtest. Erledigte Einträge abhaken – sie erscheinen als farbige Punkte im Kalender.</div></div>
+      <div class="help-item"><span class="hk">Heatmap</span><div class="hv">Die Heatmap zeigt deine <b>Lern-Aktivität der letzten 16 Wochen</b> – je dunkler, desto mehr Sessions an dem Tag.</div></div>
+    </div>
+
+    <div class="help-section">
+      <h3><span class="hi">🏆</span> Note eintragen</h3>
+      <div class="help-item"><span class="hk">Nach Stichtag</span><div class="hv">Sobald das Datum einer Prüfung verstrichen ist, erscheint im Countdown-Card ein Feld, um die <b>Note (1,0–5,0)</b> einzutragen. Die Note wird im Archiv gespeichert.</div></div>
+    </div>
+
+    <hr class="help-divider">
+
+    <div class="help-section">
+      <h3><span class="hi">📊</span> Statistik & Archiv</h3>
+      <div class="help-item"><span class="hk">Archivieren</span><div class="hv">Nach der letzten Klausur erscheint ein Banner. Mit <b>„Jetzt bewerten & archivieren"</b> bewertest du jedes Fach mit Sternen und Notizen – dann wird die Phase ins Archiv verschoben.</div></div>
+      <div class="help-item"><span class="hk">Wrapped</span><div class="hv">Jede archivierte Phase enthält ein <b>Wrapped</b> – eine Story-ähnliche Zusammenfassung mit Lernzeit, gemeisterten Themen und deinem persönlichen Einsatz.</div></div>
+    </div>
+
+    <div class="help-note">
+      <b>Wichtig zu wissen:</b> Die Statistiken (Lernzeit, Sessions, Streak) beziehen sich immer auf die <b>aktuelle Prüfungsphase</b>. Beim Archivieren werden sie gespeichert und dann <b>für das neue Semester zurückgesetzt</b> – so bleibt jede Phase für sich auswertbar.
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn primary" data-close>Verstanden</button>
+    </div>
+  </div>
 </div>
 
 <!-- SETTINGS MODAL -->
@@ -1263,6 +1331,7 @@ function renderCourseRows(){
     wrap.appendChild(row);
   });
 }
+document.getElementById("openHelp").addEventListener("click",()=>openModal("helpModal"));
 document.getElementById("openSettings").addEventListener("click",()=>{
   document.getElementById("setName").value=state.user||"";
   document.getElementById("setSemester").value=state.current.semester||"";
