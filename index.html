@@ -1320,10 +1320,10 @@ function renderCourseRows(){
   state.current.exams.forEach(ex=>{
     const row=document.createElement("div");row.className="course-row";
     row.innerHTML='<div class="c-main"><input type="text" class="c-name" value="'+esc(ex.subject)+'" placeholder="Fach">'
-      +typeSelectHtml(ex.type)
       +'<input type="date" class="c-date" value="'+ex.date+'">'
       +'<input type="time" class="c-time" value="'+(ex.time||"09:00")+'">'
       +'<button class="icon-btn danger del-c" title="Entfernen">✕</button></div>'
+      +'<div class="c-weight">'+typeSelectHtml(ex.type)+'</div>'
       +weightRowHtml(ex);
     row.dataset.id=ex.id;
     row.querySelector(".del-c").addEventListener("click",()=>{row.remove();});
@@ -1343,10 +1343,10 @@ document.getElementById("addCourseRow").addEventListener("click",()=>{
   const wrap=document.getElementById("courseRows");
   const row=document.createElement("div");row.className="course-row";row.dataset.id="new-"+uid();
   row.innerHTML='<div class="c-main"><input type="text" class="c-name" value="" placeholder="Fach">'
-    +typeSelectHtml(null)
     +'<input type="date" class="c-date" value="">'
     +'<input type="time" class="c-time" value="09:00">'
     +'<button class="icon-btn danger del-c" title="Entfernen">✕</button></div>'
+    +'<div class="c-weight">'+typeSelectHtml(null)+'</div>'
     +weightRowHtml(null);
   row.querySelector(".del-c").addEventListener("click",()=>row.remove());
   bindWeightRow(row);
