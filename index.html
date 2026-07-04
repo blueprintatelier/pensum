@@ -876,14 +876,14 @@ function renderSubjects(){
       +'<button class="icon-btn danger" title="Klausur löschen">🗑</button></div>'
       +'<div class="progress-bar"><div class="progress-fill" style="width:'+prog+'%"></div></div>'
       +'<div class="subject-time">⏱ '+fmtMin(ex.seconds||0)+' gelernt</div>'
-      +'<div class="modules"></div><button class="add-line">+ Modul hinzufügen</button>';
+      +'<div class="modules"></div><button class="add-line add-module-btn">+ Modul hinzufügen</button>';
     const h3=block.querySelector("h3");
     h3.addEventListener("blur",e=>{ex.subject=e.target.textContent.trim()||"Unbenannt";save();renderAll();});
     h3.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();e.target.blur();}});
     block.querySelector(".icon-btn.danger").addEventListener("click",()=>{if(confirm("Klausur „"+ex.subject+"“ löschen?")){state.current.exams=state.current.exams.filter(x=>x.id!==ex.id);save();renderAll();}});
     const modWrap=block.querySelector(".modules");
     ex.modules.forEach(m=>modWrap.appendChild(renderModule(ex,m)));
-    block.querySelector(".add-line").addEventListener("click",()=>{ex.modules.push({id:uid(),name:"Neues Modul",open:true,topics:[]});save();renderAll();});
+    block.querySelector(".add-module-btn").addEventListener("click",()=>{ex.modules.push({id:uid(),name:"Neues Modul",open:true,topics:[]});save();renderAll();});
     wrap.appendChild(block);
   });
 }
